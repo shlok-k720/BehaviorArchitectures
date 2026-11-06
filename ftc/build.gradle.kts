@@ -47,6 +47,10 @@ dependencies {
 
     // Optional: uncomment if you wire up FTC Dashboard graphing in the OpModes.
     // compileOnly("com.acmerobotics.dashboard:dashboard:0.4.16")
+
+    // JUnit 4 for the local unit tests (the template ExampleUnitTest uses
+    // org.junit.Test / org.junit.Assert).
+    testImplementation(libs.junit)
 }
 
 publishing {
