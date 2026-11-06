@@ -10,7 +10,7 @@ import com.rmsftc.cmdlib.scheduler.ComposedCommands
  * next one starts **in the same tick**. Ends when the last child ends.
  *
  * The group holds the union of its children's requirements for its whole
- * duration, so no other command can take a child's subsystem mid-sequence.
+ * duration, so no other command can take a child's token mid-sequence.
  * Its interruption behavior is `CANCEL_SELF` if any child has it.
  */
 class SequentialCommandGroup(vararg commands: ICommand) : Command() {

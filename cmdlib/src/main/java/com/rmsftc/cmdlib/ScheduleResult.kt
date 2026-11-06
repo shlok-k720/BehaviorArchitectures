@@ -11,7 +11,7 @@ enum class ScheduleResult {
     /** The same command instance is already scheduled or queued. */
     ALREADY_RUNNING,
 
-    /** A higher-priority command holds a subsystem this command needs. */
+    /** A higher-priority command holds a token this command needs. */
     BLOCKED_BY_HIGHER_PRIORITY,
 
     /** A running command at the same priority refused to be interrupted

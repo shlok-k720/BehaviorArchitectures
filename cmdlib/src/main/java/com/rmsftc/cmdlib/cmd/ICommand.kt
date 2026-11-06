@@ -36,7 +36,7 @@ interface ICommand {
         get() = 0
 
     /** What happens to *this* command when another command at the same
-     * priority needs one of its subsystems. Defaults to
+     * priority needs one of its tokens. Defaults to
      * [InterruptionBehavior.CANCEL_SELF]. */
     val interruptionBehavior: InterruptionBehavior
         get() = InterruptionBehavior.CANCEL_SELF

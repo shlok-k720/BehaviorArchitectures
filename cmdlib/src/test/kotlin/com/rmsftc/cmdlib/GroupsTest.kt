@@ -82,7 +82,7 @@ class GroupsTest {
     }
 
     @Test
-    fun `parallel forbids two children sharing a subsystem`() {
+    fun `parallel forbids two children sharing a token`() {
         val drive = "drive"
         val a = RunForeverCommand(drive)
         val b = RunForeverCommand(drive)

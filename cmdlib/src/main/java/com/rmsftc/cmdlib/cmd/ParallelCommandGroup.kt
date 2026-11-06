@@ -9,7 +9,7 @@ import com.rmsftc.cmdlib.scheduler.ComposedCommands
  * Runs all its children at the same time, one tick each per loop. Ends when
  * the **last** child ends.
  *
- * Two children may not require the same subsystem (the constructor throws);
+ * Two children may not require the same token (the constructor throws);
  * they would fight over one mechanism for the group's whole duration.
  */
 class ParallelCommandGroup(vararg commands: ICommand) : Command() {

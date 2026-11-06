@@ -127,7 +127,7 @@ class SelectorsTest {
     }
 
     @Test
-    fun `defer rejects a built command that needs undeclared subsystems`() {
+    fun `defer rejects a built command that needs undeclared tokens`() {
         val s = scheduler()
         val drive = "drive"
         val cmd = DeferredCommand(

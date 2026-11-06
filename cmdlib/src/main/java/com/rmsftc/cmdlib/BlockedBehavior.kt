@@ -2,7 +2,7 @@ package com.rmsftc.cmdlib
 
 /**
  * What happens to an *incoming* command when it cannot be scheduled right
- * now (a higher-priority command holds a subsystem it needs, or a running
+ * now (a higher-priority command holds a token it needs, or a running
  * command at the same priority refuses to be interrupted).
  */
 enum class BlockedBehavior {
