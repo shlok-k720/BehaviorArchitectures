@@ -3,12 +3,13 @@ package com.rmsftc.cmdlib
 import com.rmsftc.cmdlib.cmd.Commands
 import com.rmsftc.cmdlib.cmd.RunCommand
 import com.rmsftc.cmdlib.cmd.WaitCommand
+import com.rmsftc.cmdlib.cmd.groups.ParallelRaceGroup
 import com.rmsftc.cmdlib.scheduler.Scheduler
+import java.util.function.BooleanSupplier
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.util.function.BooleanSupplier
 
 class BaseCommandsTest {
     private fun scheduler() = Scheduler()
@@ -60,7 +61,7 @@ class BaseCommandsTest {
         val forever = RunForeverCommand()
         // withTimeout itself uses the real clock, so race the command
         // against a fake-clock wait to test the same semantics.
-        val race = com.rmsftc.cmdlib.cmd.ParallelRaceGroup(
+        val race = com.rmsftc.cmdlib.cmd.groups.ParallelRaceGroup(
             forever, WaitCommand(50, clock)
         )
         val s = scheduler()

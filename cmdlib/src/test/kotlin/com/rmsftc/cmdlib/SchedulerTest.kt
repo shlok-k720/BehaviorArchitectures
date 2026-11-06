@@ -6,13 +6,13 @@ import com.rmsftc.cmdlib.cmd.RunCommand
 import com.rmsftc.cmdlib.scheduler.QueueScheduler
 import com.rmsftc.cmdlib.scheduler.Scheduler
 import com.rmsftc.cmdlib.scheduler.SchedulerEventListener
+import java.util.function.BooleanSupplier
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.util.function.BooleanSupplier
 
 class SchedulerTest {
     private fun scheduler(active: Boolean = true): Scheduler =

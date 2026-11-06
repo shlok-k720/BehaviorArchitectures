@@ -1,18 +1,19 @@
 package com.rmsftc.cmdlib
 
 import com.rmsftc.cmdlib.cmd.Commands
-import com.rmsftc.cmdlib.cmd.DeferredCommand
-import com.rmsftc.cmdlib.cmd.ProxyCommand
-import com.rmsftc.cmdlib.cmd.ScheduleCommand
+import com.rmsftc.cmdlib.cmd.ICommand
+import com.rmsftc.cmdlib.cmd.forking.ProxyCommand
+import com.rmsftc.cmdlib.cmd.forking.ScheduleCommand
+import com.rmsftc.cmdlib.cmd.selectors.DeferredCommand
 import com.rmsftc.cmdlib.scheduler.Scheduler
+import java.util.EnumMap
+import java.util.function.BooleanSupplier
+import java.util.function.Supplier
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.util.EnumMap
-import java.util.function.BooleanSupplier
-import java.util.function.Supplier
 
 class SelectorsTest {
     private fun scheduler() = Scheduler()

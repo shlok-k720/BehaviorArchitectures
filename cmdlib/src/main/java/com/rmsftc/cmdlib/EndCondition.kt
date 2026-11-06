@@ -1,5 +1,6 @@
 package com.rmsftc.cmdlib
 
+
 /**
  * Why a command's [cmd.Command.end] is being called. Passed to `end()` so a
  * command can tell a natural finish apart from being cancelled.

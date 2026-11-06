@@ -1,6 +1,7 @@
 package com.rmsftc.cmdlib.scheduler
 
 import com.rmsftc.cmdlib.BlockedBehavior
+import com.rmsftc.cmdlib.InterruptionBehavior
 import com.rmsftc.cmdlib.ScheduleResult
 import com.rmsftc.cmdlib.cmd.ICommand
 import com.rmsftc.cmdlib.trigger.Trigger
@@ -23,7 +24,7 @@ import java.util.function.Supplier
  * Conflict rule (WPILib v2 + Ivy hybrid): scheduling is decided by integer
  * [ICommand.priority] first — a higher-priority holder blocks the incoming
  * command, a lower-priority holder is interrupted. At equal priority the
- * *running* command's [InterruptionBehavior][com.rmsftc.cmdlib.InterruptionBehavior]
+ * *running* command's [InterruptionBehavior]
  * decides: `CANCEL_SELF` (default) ends it, `CANCEL_INCOMING` rejects the
  * newcomer. A rejected command with [BlockedBehavior.QUEUE] is parked and
  * retried every tick instead of dropped.
@@ -63,7 +64,7 @@ class Scheduler @JvmOverloads constructor(
         }
         if (holders.any {
                 it.priority == incomingPriority &&
-                    it.interruptionBehavior == com.rmsftc.cmdlib.InterruptionBehavior.CANCEL_INCOMING
+                    it.interruptionBehavior == InterruptionBehavior.CANCEL_INCOMING
             }
         ) {
             return parkOrReject(command, ScheduleResult.REJECTED_BY_RUNNING_COMMAND)
@@ -200,7 +201,7 @@ class Scheduler @JvmOverloads constructor(
                 holders.any { it.priority > command.priority } ||
                     holders.any {
                         it.priority == command.priority &&
-                            it.interruptionBehavior == com.rmsftc.cmdlib.InterruptionBehavior.CANCEL_INCOMING
+                            it.interruptionBehavior == InterruptionBehavior.CANCEL_INCOMING
                     }
             if (!blocked) {
                 holders.toList().forEach { interrupt(it) }

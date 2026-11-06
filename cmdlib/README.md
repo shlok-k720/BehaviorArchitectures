@@ -18,6 +18,21 @@ dependencies {
 Replace `<version>` with a release tag, such as `v0.2.0`, after it has been
 built by JitPack.
 
+## Layout
+
+- `com.rmsftc.cmdlib.cmd` — the base: `Command`, `ICommand`, the
+  `Commands` factories, and the leaf commands (`Functional`, `Instant`,
+  `Run`, `StartEnd`, `Print`, `Wait`, `WaitUntil`).
+- `com.rmsftc.cmdlib.cmd.groups` — `Sequential`, `Parallel`, `ParallelRace`,
+  `ParallelDeadline`.
+- `com.rmsftc.cmdlib.cmd.selectors` — `Conditional`, `Select`, `Branch`,
+  `Match`, `Deferred`.
+- `com.rmsftc.cmdlib.cmd.decorators` — single-child wrappers: `WrapperCommand`,
+  `FinallyDo`, `InterruptBehavior`, `RunsWhenDisabled`, `Named`, `Repeat`.
+- `com.rmsftc.cmdlib.cmd.forking` — `ProxyCommand`, `ScheduleCommand`.
+- `com.rmsftc.cmdlib.scheduler` — the `Scheduler` and `IScheduler`.
+- `com.rmsftc.cmdlib.trigger` — `Trigger` and `DebounceType`.
+
 ## The model
 
 A **command** is a unit of work. The scheduler ticks it once per loop; the

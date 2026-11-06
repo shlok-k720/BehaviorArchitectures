@@ -1,11 +1,11 @@
 package com.rmsftc.cmdlib
 
 import com.rmsftc.cmdlib.cmd.Commands
-import com.rmsftc.cmdlib.cmd.ParallelCommandGroup
-import com.rmsftc.cmdlib.cmd.ParallelDeadlineGroup
-import com.rmsftc.cmdlib.cmd.ParallelRaceGroup
-import com.rmsftc.cmdlib.cmd.RepeatCommand
-import com.rmsftc.cmdlib.cmd.SequentialCommandGroup
+import com.rmsftc.cmdlib.cmd.decorators.RepeatCommand
+import com.rmsftc.cmdlib.cmd.groups.ParallelCommandGroup
+import com.rmsftc.cmdlib.cmd.groups.ParallelDeadlineGroup
+import com.rmsftc.cmdlib.cmd.groups.ParallelRaceGroup
+import com.rmsftc.cmdlib.cmd.groups.SequentialCommandGroup
 import com.rmsftc.cmdlib.scheduler.Scheduler
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
