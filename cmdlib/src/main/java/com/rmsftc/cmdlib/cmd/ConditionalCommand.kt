@@ -4,7 +4,6 @@ import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.InterruptionBehavior
 import com.rmsftc.cmdlib.Status
 import com.rmsftc.cmdlib.scheduler.ComposedCommands
-import com.rmsftc.cmdlib.subsystem.Subsystem
 import java.util.function.BooleanSupplier
 
 /**

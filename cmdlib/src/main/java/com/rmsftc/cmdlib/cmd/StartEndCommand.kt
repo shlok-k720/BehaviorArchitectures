@@ -2,7 +2,6 @@ package com.rmsftc.cmdlib.cmd
 
 import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.Status
-import com.rmsftc.cmdlib.subsystem.Subsystem
 
 /**
  * Runs [onStart] once when it starts and [onEnd] once when it ends, and
@@ -13,10 +12,10 @@ import com.rmsftc.cmdlib.subsystem.Subsystem
 class StartEndCommand(
     private val onStart: Runnable,
     private val onEnd: Runnable,
-    vararg requiredSubsystems: Subsystem
+    vararg tokens: Any
 ) : Command() {
     init {
-        addRequirements(*requiredSubsystems)
+        addRequirements(*tokens)
     }
 
     override fun start() {

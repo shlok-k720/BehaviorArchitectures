@@ -5,7 +5,6 @@ import com.rmsftc.cmdlib.InterruptionBehavior
 import com.rmsftc.cmdlib.ScheduleResult
 import com.rmsftc.cmdlib.Status
 import com.rmsftc.cmdlib.scheduler.IScheduler
-import com.rmsftc.cmdlib.subsystem.Subsystem
 
 /**
  * A unit of work the scheduler can run. One [execute] call is one tick: the
@@ -24,9 +23,11 @@ interface ICommand {
      * started (in that case it must do nothing, and must not call `end()`). */
     fun invalidate()
 
-    /** The subsystems this command needs. No two running commands may require
-     * the same subsystem. Empty by default. */
-    val requirements: Set<Subsystem>
+    /** The requirement tokens this command needs (Ivy-style untyped
+     * tokens: any object — usually a string naming a mechanism, or the
+     * mechanism itself). No two running commands may hold the same token.
+     * Empty by default. */
+    val requirements: Set<Any>
         get() = emptySet()
 
     /** Scheduling priority; higher interrupts lower at the same conflict

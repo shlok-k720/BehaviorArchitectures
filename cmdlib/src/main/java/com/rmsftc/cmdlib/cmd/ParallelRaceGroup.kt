@@ -4,7 +4,6 @@ import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.InterruptionBehavior
 import com.rmsftc.cmdlib.Status
 import com.rmsftc.cmdlib.scheduler.ComposedCommands
-import com.rmsftc.cmdlib.subsystem.Subsystem
 
 /**
  * Runs all its children at the same time. Ends when the **first** child
@@ -18,7 +17,7 @@ class ParallelRaceGroup(vararg commands: ICommand) : Command() {
     init {
         require(commands.isNotEmpty()) { "ParallelRaceGroup needs at least one command" }
         ComposedCommands.markAllComposed(commands, "ParallelRaceGroup")
-        val allRequirements = LinkedHashSet<Subsystem>()
+        val allRequirements = LinkedHashSet<Any>()
         var maxPriority = 0
         var anyCancelSelf = false
         var allRunWhenDisabled = true

@@ -1,7 +1,6 @@
 package com.rmsftc.cmdlib
 
 import com.rmsftc.cmdlib.cmd.Command
-import com.rmsftc.cmdlib.subsystem.Subsystem
 
 /**
  * A scripted command for tests (the `TestBehaviorNode` of cmdlib): returns
@@ -12,7 +11,7 @@ import com.rmsftc.cmdlib.subsystem.Subsystem
 class TestCommand(
     private val results: List<Status>,
     private val repeatLast: Boolean = false,
-    vararg requiredSubsystems: Subsystem
+    vararg tokens: Any
 ) : Command() {
     var starts = 0
         private set
@@ -26,7 +25,7 @@ class TestCommand(
     private var index = 0
 
     init {
-        addRequirements(*requiredSubsystems)
+        addRequirements(*tokens)
     }
 
     override fun start() {
@@ -51,7 +50,7 @@ class TestCommand(
 }
 
 /** A command that runs forever (status always RUNNING). */
-class RunForeverCommand(vararg requiredSubsystems: Subsystem) : Command() {
+class RunForeverCommand(vararg tokens: Any) : Command() {
     var loops = 0
         private set
     var ends = 0
@@ -60,7 +59,7 @@ class RunForeverCommand(vararg requiredSubsystems: Subsystem) : Command() {
         private set
 
     init {
-        addRequirements(*requiredSubsystems)
+        addRequirements(*tokens)
     }
 
     override fun start() {}
@@ -73,19 +72,6 @@ class RunForeverCommand(vararg requiredSubsystems: Subsystem) : Command() {
     override fun end(endCondition: EndCondition) {
         ends++
         lastEndCondition = endCondition
-    }
-}
-
-class TestSubsystem(name: String = "test") : com.rmsftc.cmdlib.subsystem.SubsystemBase() {
-    var periodicCalls = 0
-        private set
-
-    init {
-        setName(name)
-    }
-
-    override fun periodic() {
-        periodicCalls++
     }
 }
 

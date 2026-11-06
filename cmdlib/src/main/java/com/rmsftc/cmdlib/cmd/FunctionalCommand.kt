@@ -2,7 +2,6 @@ package com.rmsftc.cmdlib.cmd
 
 import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.Status
-import com.rmsftc.cmdlib.subsystem.Subsystem
 import java.util.function.Consumer
 import java.util.function.Supplier
 
@@ -15,17 +14,17 @@ import java.util.function.Supplier
  * @param onLoop run on every tick while the command is active.
  * @param statusSupplier reports whether the command is still running.
  * @param onEnd run once when the command finishes or is aborted.
- * @param requiredSubsystems the subsystems this command needs.
+ * @param tokens the requirement tokens this command needs.
  */
 class FunctionalCommand(
     private val onStart: Runnable = Runnable {},
     private val onLoop: Runnable = Runnable {},
     private val statusSupplier: Supplier<Status> = Supplier { Status.FINISHED },
     private val onEnd: Consumer<EndCondition> = Consumer { },
-    vararg requiredSubsystems: Subsystem
+    vararg tokens: Any
 ) : Command() {
     init {
-        addRequirements(*requiredSubsystems)
+        addRequirements(*tokens)
     }
 
     override fun start() {

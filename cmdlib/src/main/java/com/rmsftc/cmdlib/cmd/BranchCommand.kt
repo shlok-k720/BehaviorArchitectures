@@ -4,7 +4,6 @@ import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.InterruptionBehavior
 import com.rmsftc.cmdlib.Status
 import com.rmsftc.cmdlib.scheduler.ComposedCommands
-import com.rmsftc.cmdlib.subsystem.Subsystem
 import java.util.function.BooleanSupplier
 
 /**
@@ -23,7 +22,7 @@ class BranchCommand(
     init {
         require(branches.isNotEmpty()) { "BranchCommand needs at least one branch" }
         ComposedCommands.markAllComposed(branches.values.toTypedArray(), "BranchCommand")
-        val allRequirements = LinkedHashSet<Subsystem>()
+        val allRequirements = LinkedHashSet<Any>()
         var maxPriority = 0
         var anyCancelSelf = false
         var allRunWhenDisabled = true

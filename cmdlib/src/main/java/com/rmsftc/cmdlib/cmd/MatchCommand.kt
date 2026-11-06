@@ -4,7 +4,6 @@ import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.InterruptionBehavior
 import com.rmsftc.cmdlib.Status
 import com.rmsftc.cmdlib.scheduler.ComposedCommands
-import com.rmsftc.cmdlib.subsystem.Subsystem
 import java.util.EnumMap
 import java.util.function.Supplier
 
@@ -23,7 +22,7 @@ class MatchCommand<T : Enum<T>>(
     init {
         require(commands.isNotEmpty()) { "MatchCommand needs at least one command" }
         ComposedCommands.markAllComposed(commands.values.toTypedArray(), "MatchCommand")
-        val allRequirements = LinkedHashSet<Subsystem>()
+        val allRequirements = LinkedHashSet<Any>()
         var maxPriority = 0
         var anyCancelSelf = false
         var allRunWhenDisabled = true

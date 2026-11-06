@@ -2,7 +2,6 @@ package com.rmsftc.cmdlib.cmd
 
 import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.Status
-import com.rmsftc.cmdlib.subsystem.Subsystem
 import java.time.Duration
 import java.util.EnumMap
 import java.util.function.BooleanSupplier
@@ -14,8 +13,8 @@ import java.util.function.Supplier
  * `Commands`). These are the usual way to make commands; subclass [Command]
  * only when a factory cannot express what you need.
  *
- * Every factory that takes requirements declares them on the returned
- * command, so the scheduler enforces them.
+ * Every factory that takes tokens declares them as the returned
+ * command's requirements, so the scheduler enforces them.
  */
 object Commands {
     /** A command that finishes immediately and does nothing. */
@@ -24,42 +23,42 @@ object Commands {
 
     /** A command that does nothing and never finishes, holding [requirements]. */
     @JvmStatic
-    fun idle(vararg requirements: Subsystem): Command =
-        RunCommand(Runnable {}, *requirements)
+    fun idle(vararg tokens: Any): Command =
+        RunCommand(Runnable {}, *tokens)
 
     /** Runs [action] once, then finishes. */
     @JvmStatic
-    fun runOnce(action: Runnable, vararg requirements: Subsystem): Command =
-        InstantCommand(action, *requirements)
+    fun runOnce(action: Runnable, vararg tokens: Any): Command =
+        InstantCommand(action, *tokens)
 
     /** Runs [action] on every tick, forever. */
     @JvmStatic
-    fun run(action: Runnable, vararg requirements: Subsystem): Command =
-        RunCommand(action, *requirements)
+    fun run(action: Runnable, vararg tokens: Any): Command =
+        RunCommand(action, *tokens)
 
     /** Runs [start] once on start and [end] once on end, never finishing alone. */
     @JvmStatic
-    fun startEnd(start: Runnable, end: Runnable, vararg requirements: Subsystem): Command =
-        StartEndCommand(start, end, *requirements)
+    fun startEnd(start: Runnable, end: Runnable, vararg tokens: Any): Command =
+        StartEndCommand(start, end, *tokens)
 
     /** Runs [run] on every tick and [end] once on end, never finishing alone. */
     @JvmStatic
-    fun runEnd(run: Runnable, end: Runnable, vararg requirements: Subsystem): Command =
+    fun runEnd(run: Runnable, end: Runnable, vararg tokens: Any): Command =
         FunctionalCommand(
             onLoop = run,
             statusSupplier = Supplier { Status.RUNNING },
             onEnd = Consumer { _: EndCondition -> end.run() },
-            requiredSubsystems = requirements
+            tokens = tokens
         )
 
     /** Runs [start] once on start, then [run] on every tick, never finishing alone. */
     @JvmStatic
-    fun startRun(start: Runnable, run: Runnable, vararg requirements: Subsystem): Command =
+    fun startRun(start: Runnable, run: Runnable, vararg tokens: Any): Command =
         FunctionalCommand(
             onStart = start,
             onLoop = run,
             statusSupplier = Supplier { Status.RUNNING },
-            requiredSubsystems = requirements
+            tokens = tokens
         )
 
     /** Prints [message] once, then finishes. */
@@ -115,13 +114,13 @@ object Commands {
      * declared up front; the built command is rejected if it needs more.
      */
     @JvmStatic
-    fun defer(supplier: Supplier<ICommand>, vararg requirements: Subsystem): Command =
-        DeferredCommand(supplier, *requirements)
+    fun defer(supplier: Supplier<ICommand>, vararg tokens: Any): Command =
+        DeferredCommand(supplier, *tokens)
 
     /** Like [defer], but the built command is scheduled through the scheduler. */
     @JvmStatic
-    fun deferredProxy(supplier: Supplier<ICommand>, vararg requirements: Subsystem): Command =
-        ProxyCommand(DeferredCommand(supplier, *requirements))
+    fun deferredProxy(supplier: Supplier<ICommand>, vararg tokens: Any): Command =
+        ProxyCommand(DeferredCommand(supplier, *tokens))
 
     /** Runs [commands] in order, one at a time. */
     @JvmStatic

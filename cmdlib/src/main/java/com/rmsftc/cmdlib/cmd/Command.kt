@@ -5,7 +5,6 @@ import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.InterruptionBehavior
 import com.rmsftc.cmdlib.Status
 import com.rmsftc.cmdlib.scheduler.IScheduler
-import com.rmsftc.cmdlib.subsystem.Subsystem
 import java.time.Duration
 import java.util.function.BooleanSupplier
 import java.util.function.Consumer
@@ -26,9 +25,9 @@ import java.util.function.Consumer
  */
 abstract class Command : ICommand {
     private var isStarted = false
-    private val requirementSet = LinkedHashSet<Subsystem>()
+    private val requirementSet = LinkedHashSet<Any>()
 
-    override val requirements: Set<Subsystem>
+    override val requirements: Set<Any>
         get() = requirementSet.toSet()
     override var priority: Int = 0
     override var interruptionBehavior: InterruptionBehavior = InterruptionBehavior.CANCEL_SELF
@@ -36,9 +35,10 @@ abstract class Command : ICommand {
     override var runsWhenDisabled: Boolean = false
     override var name: String = javaClass.simpleName
 
-    /** Declares the subsystems this command needs. Call from the constructor. */
-    protected fun addRequirements(vararg subsystems: Subsystem) {
-        requirementSet.addAll(subsystems)
+    /** Declares the requirement tokens this command needs. Call from
+     * the constructor. */
+    protected fun addRequirements(vararg tokens: Any) {
+        requirementSet.addAll(tokens)
     }
 
     override fun execute(): Status {
@@ -85,15 +85,15 @@ abstract class Command : ICommand {
     fun andThen(vararg next: ICommand): Command = SequentialCommandGroup(this, *next)
 
     /** Runs [action] once after this command finishes. */
-    fun andThen(action: Runnable, vararg requirements: Subsystem): Command =
-        andThen(Commands.runOnce(action, *requirements))
+    fun andThen(action: Runnable, vararg tokens: Any): Command =
+        andThen(Commands.runOnce(action, *tokens))
 
     /** Runs [before] before this command starts. */
     fun beforeStarting(before: ICommand): Command = SequentialCommandGroup(before, this)
 
     /** Runs [action] once before this command starts. */
-    fun beforeStarting(action: Runnable, vararg requirements: Subsystem): Command =
-        beforeStarting(Commands.runOnce(action, *requirements))
+    fun beforeStarting(action: Runnable, vararg tokens: Any): Command =
+        beforeStarting(Commands.runOnce(action, *tokens))
 
     /** Runs this command and [parallel] at the same time; finishes when all finish. */
     fun alongWith(vararg parallel: ICommand): Command = ParallelCommandGroup(this, *parallel)

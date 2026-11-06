@@ -83,7 +83,7 @@ class GroupsTest {
 
     @Test
     fun `parallel forbids two children sharing a subsystem`() {
-        val drive = TestSubsystem("drive")
+        val drive = "drive"
         val a = RunForeverCommand(drive)
         val b = RunForeverCommand(drive)
         assertThrows(IllegalArgumentException::class.java) { ParallelCommandGroup(a, b) }

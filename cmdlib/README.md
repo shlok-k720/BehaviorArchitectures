@@ -24,9 +24,11 @@ A **command** is a unit of work. The scheduler ticks it once per loop; the
 command reports whether it is still running.
 
 ```kotlin
-// Subclass Command for a mechanism action:
+// Subclass Command for a mechanism action. Requirements are untyped tokens
+// (Ivy-style): any object, usually a string naming the mechanism, or the
+// mechanism itself. No two running commands may hold the same token.
 class DriveToTarget(private val drivetrain: Drivetrain) : Command() {
-    init { addRequirements(drivetrain) }   // subsystems this command needs
+    init { addRequirements("drivetrain") }
     override fun start() { drivetrain.beginDrive() }
     override fun loop() { drivetrain.update() }
     override fun status() = Status.of(!drivetrain.atTarget())
@@ -38,9 +40,9 @@ Or build one from lambdas with the `Commands` factories:
 
 ```kotlin
 val score = Commands.sequence(
-    Commands.runOnce({ intake.close() }, intake),
+    Commands.runOnce({ intake.close() }, "intake"),
     Commands.waitUntil { shooter.atSpeed() },
-    Commands.runOnce({ shooter.fire() }, shooter)
+    Commands.runOnce({ shooter.fire() }, "shooter")
 )
 IScheduler.instance.schedule(score)
 ```
@@ -54,31 +56,22 @@ nothing (its `end()` never runs).
 ## The scheduler
 
 The OpMode loop calls `IScheduler.instance.execute()` once per loop; `stop()`
-calls `cancelAll()`. Each tick runs subsystem `periodic()`s, polls triggers,
-ticks every scheduled command, promotes queued commands, then schedules
-default commands.
+calls `cancelAll()`. Each tick polls triggers, ticks every scheduled command,
+then promotes queued commands.
 
-Requirements are enforced: no two running commands may require the same
-subsystem. Conflicts are decided by integer `priority` first (higher
-interrupts lower; lower is blocked), and at equal priority by the *running*
-command's `InterruptionBehavior` (`CANCEL_SELF` ends it, `CANCEL_INCOMING`
-rejects the newcomer). Scheduling returns a typed `ScheduleResult`, so a
-dropped schedule is visible instead of silent. A command whose
-`blockedBehavior` is `QUEUE` is parked and retried every tick.
-
-```kotlin
-// A mechanism:
-class Shooter : SubsystemBase() {
-    override fun periodic() { /* read sensors */ }
-}
-// In the OpMode: shooter.defaultCommand = Commands.run({ shooter.idle() }, shooter)
-```
+Requirements are enforced: no two running commands may hold the same token.
+Conflicts are decided by integer `priority` first (higher interrupts lower;
+lower is blocked), and at equal priority by the *running* command's
+`InterruptionBehavior` (`CANCEL_SELF` ends it, `CANCEL_INCOMING` rejects the
+newcomer). Scheduling returns a typed `ScheduleResult`, so a dropped schedule
+is visible instead of silent. A command whose `blockedBehavior` is `QUEUE`
+is parked and retried every tick.
 
 ## Groups and decorators
 
 - **Groups:** `SequentialCommandGroup` (one at a time, same-tick advance),
   `ParallelCommandGroup` (ends when the last ends; children may not share a
-  subsystem), `ParallelRaceGroup` (ends when the first ends; losers are
+  requirement token), `ParallelRaceGroup` (ends when the first ends; losers are
   interrupted), `ParallelDeadlineGroup` (ends when the deadline ends).
   `Commands.sequence / parallel / race / deadline` build them.
 - **Selectors:** `either` / `select` (key) / `branch` (first true of N) /

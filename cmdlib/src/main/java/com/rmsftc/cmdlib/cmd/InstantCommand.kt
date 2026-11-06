@@ -2,7 +2,6 @@ package com.rmsftc.cmdlib.cmd
 
 import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.Status
-import com.rmsftc.cmdlib.subsystem.Subsystem
 
 /**
  * Runs [action] once on start and finishes immediately (WPILib v2's
@@ -11,10 +10,10 @@ import com.rmsftc.cmdlib.subsystem.Subsystem
  */
 open class InstantCommand(
     private val action: Runnable = Runnable {},
-    vararg requiredSubsystems: Subsystem
+    vararg tokens: Any
 ) : Command() {
     init {
-        addRequirements(*requiredSubsystems)
+        addRequirements(*tokens)
     }
 
     override fun start() {

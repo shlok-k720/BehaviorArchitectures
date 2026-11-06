@@ -4,7 +4,6 @@ import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.InterruptionBehavior
 import com.rmsftc.cmdlib.Status
 import com.rmsftc.cmdlib.scheduler.ComposedCommands
-import com.rmsftc.cmdlib.subsystem.Subsystem
 
 /**
  * Runs all its children at the same time, one tick each per loop. Ends when
@@ -20,19 +19,19 @@ class ParallelCommandGroup(vararg commands: ICommand) : Command() {
     init {
         require(commands.isNotEmpty()) { "ParallelCommandGroup needs at least one command" }
         ComposedCommands.markAllComposed(commands, "ParallelCommandGroup")
-        val seen = HashMap<Subsystem, ICommand>()
+        val seen = HashMap<Any, ICommand>()
         for (child in commands) {
             for (requirement in child.requirements) {
                 val previous = seen.putIfAbsent(requirement, child)
                 if (previous != null) {
                     throw IllegalArgumentException(
                         "ParallelCommandGroup: '${previous.name}' and '${child.name}' " +
-                            "both require subsystem '${requirement.getName()}'"
+                            "both require '$requirement'"
                     )
                 }
             }
         }
-        val allRequirements = LinkedHashSet<Subsystem>()
+        val allRequirements = LinkedHashSet<Any>()
         var maxPriority = 0
         var anyCancelSelf = false
         var allRunWhenDisabled = true

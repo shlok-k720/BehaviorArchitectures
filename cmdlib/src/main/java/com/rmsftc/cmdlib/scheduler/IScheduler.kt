@@ -1,9 +1,7 @@
 package com.rmsftc.cmdlib.scheduler
 
 import com.rmsftc.cmdlib.ScheduleResult
-import com.rmsftc.cmdlib.cmd.Command
 import com.rmsftc.cmdlib.cmd.ICommand
-import com.rmsftc.cmdlib.subsystem.Subsystem
 import com.rmsftc.cmdlib.trigger.Trigger
 
 /**
@@ -18,8 +16,7 @@ interface IScheduler {
      * the result says what happened. */
     fun schedule(command: ICommand): ScheduleResult
 
-    /** Runs one tick: subsystem periodics, trigger polling, scheduled
-     * commands, queue promotion, then default commands. */
+    /** Runs one tick: trigger polling, scheduled commands, queue promotion. */
     fun execute()
 
     /** Cancels [command] if it is running (its `end(INTERRUPTED)` runs).
@@ -32,20 +29,8 @@ interface IScheduler {
     /** Whether [command] is currently running or queued. */
     fun isScheduled(command: ICommand): Boolean
 
-    /** The running command that currently requires [subsystem], or null. */
-    fun requiring(subsystem: Subsystem): ICommand? = null
-
-    /** Registers [subsystem] so its [Subsystem.periodic] runs every tick.
-     * Subsystems are also auto-registered when a command requiring them is
-     * scheduled. */
-    fun registerSubsystem(subsystem: Subsystem) {}
-
-    /** Sets the command that runs whenever nothing else requires
-     * [subsystem]. */
-    fun setDefaultCommand(subsystem: Subsystem, command: Command) {}
-
-    /** The default command for [subsystem], or null. */
-    fun getDefaultCommand(subsystem: Subsystem): Command? = null
+    /** The running command that currently holds [token], or null. */
+    fun requiring(token: Any): ICommand? = null
 
     /** Registers [trigger] for polling on every tick. */
     fun addTrigger(trigger: Trigger) {}

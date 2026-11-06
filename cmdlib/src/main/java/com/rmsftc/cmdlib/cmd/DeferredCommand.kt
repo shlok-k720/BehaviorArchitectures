@@ -3,7 +3,6 @@ package com.rmsftc.cmdlib.cmd
 import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.Status
 import com.rmsftc.cmdlib.scheduler.ComposedCommands
-import com.rmsftc.cmdlib.subsystem.Subsystem
 import java.util.function.Supplier
 
 /**
@@ -15,13 +14,13 @@ import java.util.function.Supplier
  */
 class DeferredCommand(
     private val supplier: Supplier<ICommand>,
-    vararg requiredSubsystems: Subsystem
+    vararg tokens: Any
 ) : Command() {
     private var inner: ICommand? = null
     private var lastStatus: Status = Status.RUNNING
 
     init {
-        addRequirements(*requiredSubsystems)
+        addRequirements(*tokens)
     }
 
     override fun start() {
@@ -29,8 +28,8 @@ class DeferredCommand(
         val undeclared = built.requirements - requirements
         if (undeclared.isNotEmpty()) {
             throw IllegalStateException(
-                "DeferredCommand: deferred command '${built.name}' requires subsystems " +
-                    "not declared up front: ${undeclared.map { it.getName() }}"
+                "DeferredCommand: deferred command '${built.name}' requires tokens " +
+                    "not declared up front: $undeclared"
             )
         }
         ComposedCommands.markComposed(built, "DeferredCommand")

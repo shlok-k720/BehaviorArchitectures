@@ -19,7 +19,7 @@ kotlin {
 }
 
 dependencies {
-    // Kotlin types appear in the public API (Command, Subsystem), so the
+    // Kotlin types appear in the public API (Command, Trigger), so the
     // stdlib must be visible to consumers too. kotlin("stdlib") follows the
     // plugin version.
     api(kotlin("stdlib"))

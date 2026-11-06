@@ -4,7 +4,6 @@ import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.InterruptionBehavior
 import com.rmsftc.cmdlib.Status
 import com.rmsftc.cmdlib.scheduler.ComposedCommands
-import com.rmsftc.cmdlib.subsystem.Subsystem
 
 /**
  * Runs [deadline] alongside [others]. Ends only when the **deadline**
@@ -20,7 +19,7 @@ class ParallelDeadlineGroup(
 
     init {
         ComposedCommands.markAllComposed(children.toTypedArray(), "ParallelDeadlineGroup")
-        val allRequirements = LinkedHashSet<Subsystem>()
+        val allRequirements = LinkedHashSet<Any>()
         var maxPriority = 0
         var anyCancelSelf = false
         var allRunWhenDisabled = true

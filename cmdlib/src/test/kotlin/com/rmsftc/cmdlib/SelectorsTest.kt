@@ -129,7 +129,7 @@ class SelectorsTest {
     @Test
     fun `defer rejects a built command that needs undeclared subsystems`() {
         val s = scheduler()
-        val drive = TestSubsystem("drive")
+        val drive = "drive"
         val cmd = DeferredCommand(
             Supplier { RunForeverCommand(drive) }
         )
@@ -160,7 +160,7 @@ class SelectorsTest {
     @Test
     fun `proxy finishes immediately when the inner command cannot be scheduled`() {
         val s = scheduler()
-        val drive = TestSubsystem("drive")
+        val drive = "drive"
         val holder = RunForeverCommand(drive)
         holder.interruptionBehavior = InterruptionBehavior.CANCEL_INCOMING
         s.schedule(holder)

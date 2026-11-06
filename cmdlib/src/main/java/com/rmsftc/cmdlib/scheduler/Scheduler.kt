@@ -2,9 +2,7 @@ package com.rmsftc.cmdlib.scheduler
 
 import com.rmsftc.cmdlib.BlockedBehavior
 import com.rmsftc.cmdlib.ScheduleResult
-import com.rmsftc.cmdlib.cmd.Command
 import com.rmsftc.cmdlib.cmd.ICommand
-import com.rmsftc.cmdlib.subsystem.Subsystem
 import com.rmsftc.cmdlib.trigger.Trigger
 import java.util.ArrayDeque
 import java.util.function.BooleanSupplier
@@ -13,12 +11,14 @@ import java.util.function.Supplier
 /**
  * The scheduler. Runs commands in parallel, one tick per [execute] call:
  *
- * 1. Every registered subsystem's `periodic()`.
- * 2. Trigger polling (bindings schedule/cancel commands).
- * 3. Each running command's `execute()`; finished commands are removed.
- * 4. Queued commands are promoted when their requirements free up
+ * 1. Trigger polling (bindings schedule/cancel commands).
+ * 2. Each running command's `execute()`; finished commands are removed.
+ * 3. Queued commands are promoted when their requirements free up
  *    (priority is re-checked on every retry).
- * 5. Default commands are scheduled for subsystems nothing else requires.
+ *
+ * Requirements are untyped tokens (Ivy-style): any object, usually a string
+ * naming a mechanism or the mechanism itself. No two running commands may
+ * hold the same token.
  *
  * Conflict rule (WPILib v2 + Ivy hybrid): scheduling is decided by integer
  * [ICommand.priority] first — a higher-priority holder blocks the incoming
@@ -40,9 +40,7 @@ class Scheduler @JvmOverloads constructor(
 
     private val running = LinkedHashSet<ICommand>()
     private val queued = ArrayDeque<ICommand>()
-    private val requirements = HashMap<Subsystem, ICommand>()
-    private val subsystems = LinkedHashSet<Subsystem>()
-    private val defaults = HashMap<Subsystem, Command>()
+    private val requirements = HashMap<Any, ICommand>()
     private val triggers = ArrayList<Trigger>()
     private val listeners = ArrayList<SchedulerEventListener>()
 
@@ -83,7 +81,6 @@ class Scheduler @JvmOverloads constructor(
             // running below.
             running.filter { !it.runsWhenDisabled }.toList().forEach { cancel(it) }
         }
-        subsystems.forEach { it.periodic() }
         triggers.toList().forEach { it.poll() }
         // Run a snapshot: commands may schedule/cancel others mid-tick.
         running.toList().forEach { command ->
@@ -93,7 +90,6 @@ class Scheduler @JvmOverloads constructor(
             }
         }
         promoteQueued()
-        scheduleDefaults()
     }
 
     override fun cancel(command: ICommand) {
@@ -114,18 +110,7 @@ class Scheduler @JvmOverloads constructor(
     override fun isScheduled(command: ICommand): Boolean =
         running.contains(command) || queued.contains(command)
 
-    override fun requiring(subsystem: Subsystem): ICommand? = requirements[subsystem]
-
-    override fun registerSubsystem(subsystem: Subsystem) {
-        subsystems.add(subsystem)
-    }
-
-    override fun setDefaultCommand(subsystem: Subsystem, command: Command) {
-        subsystems.add(subsystem)
-        defaults[subsystem] = command
-    }
-
-    override fun getDefaultCommand(subsystem: Subsystem): Command? = defaults[subsystem]
+    override fun requiring(token: Any): ICommand? = requirements[token]
 
     override fun addTrigger(trigger: Trigger) {
         if (!triggers.contains(trigger)) {
@@ -171,7 +156,6 @@ class Scheduler @JvmOverloads constructor(
     private fun start(command: ICommand) {
         running.add(command)
         for (requirement in command.requirements) {
-            subsystems.add(requirement)
             requirements[requirement] = command
         }
         listeners.forEach { it.onScheduled(command) }
@@ -223,15 +207,6 @@ class Scheduler @JvmOverloads constructor(
                 iterator.remove()
                 start(command)
             }
-        }
-    }
-
-    private fun scheduleDefaults() {
-        for ((subsystem, defaultCommand) in defaults) {
-            if (requirements.containsKey(subsystem)) continue
-            if (running.contains(defaultCommand) || queued.contains(defaultCommand)) continue
-            if (!isOpModeActive.asBoolean && !defaultCommand.runsWhenDisabled) continue
-            schedule(defaultCommand)
         }
     }
 }

@@ -68,7 +68,7 @@ class SchedulerTest {
     @Test
     fun `equal priority conflict with default behavior interrupts the running command`() {
         val s = scheduler()
-        val drive = TestSubsystem("drive")
+        val drive = "drive"
         val first = RunForeverCommand(drive)
         val second = RunForeverCommand(drive)
         s.schedule(first)
@@ -82,7 +82,7 @@ class SchedulerTest {
     @Test
     fun `equal priority conflict with CANCEL_INCOMING rejects the newcomer`() {
         val s = scheduler()
-        val drive = TestSubsystem("drive")
+        val drive = "drive"
         val first = RunForeverCommand(drive)
         first.interruptionBehavior = InterruptionBehavior.CANCEL_INCOMING
         val second = RunForeverCommand(drive)
@@ -95,7 +95,7 @@ class SchedulerTest {
     @Test
     fun `higher priority interrupts lower, lower is blocked by higher`() {
         val s = scheduler()
-        val drive = TestSubsystem("drive")
+        val drive = "drive"
         val low = RunForeverCommand(drive)
         low.priority = 0
         val high = RunForeverCommand(drive)
@@ -115,7 +115,7 @@ class SchedulerTest {
     @Test
     fun `a QUEUE blocked command is promoted when the holder finishes`() {
         val s = scheduler()
-        val drive = TestSubsystem("drive")
+        val drive = "drive"
         val holder = TestCommand(listOf(Status.RUNNING, Status.FINISHED), false, drive)
         holder.priority = 5
         val queued = RunForeverCommand(drive)
@@ -135,7 +135,7 @@ class SchedulerTest {
     @Test
     fun `cancelling a queued command never calls end`() {
         val s = scheduler()
-        val drive = TestSubsystem("drive")
+        val drive = "drive"
         val holder = RunForeverCommand(drive)
         holder.priority = 5
         val queued = TestCommand(listOf(Status.FINISHED), false, drive)
@@ -146,36 +146,6 @@ class SchedulerTest {
         assertEquals(0, queued.ends)
         assertEquals(0, queued.starts)
         assertFalse(s.isScheduled(queued))
-    }
-
-    @Test
-    fun `default command runs when nothing else requires the subsystem`() {
-        val s = scheduler()
-        val drive = TestSubsystem("drive")
-        val idle = RunForeverCommand(drive)
-        s.setDefaultCommand(drive, idle)
-        s.execute()
-        assertTrue(s.isScheduled(idle))
-        s.execute()
-        val other = RunForeverCommand(drive)
-        s.schedule(other)
-        s.execute()
-        assertFalse(s.isScheduled(idle))
-        assertEquals(EndCondition.INTERRUPTED, idle.lastEndCondition)
-        assertTrue(s.isScheduled(other))
-        s.cancel(other)
-        s.execute()
-        assertTrue(s.isScheduled(idle))
-    }
-
-    @Test
-    fun `subsystem periodic runs every tick`() {
-        val s = scheduler()
-        val drive = TestSubsystem("drive")
-        s.registerSubsystem(drive)
-        s.execute()
-        s.execute()
-        assertEquals(2, drive.periodicCalls)
     }
 
     @Test
@@ -202,9 +172,9 @@ class SchedulerTest {
     }
 
     @Test
-    fun `requiring reports the running command for a subsystem`() {
+    fun `requiring reports the running command for a token`() {
         val s = scheduler()
-        val drive = TestSubsystem("drive")
+        val drive = "drive"
         val cmd = RunForeverCommand(drive)
         assertNull(s.requiring(drive))
         s.schedule(cmd)
