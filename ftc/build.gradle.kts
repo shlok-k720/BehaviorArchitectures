@@ -43,9 +43,7 @@ dependencies {
 
     // Provided by the host robot app at runtime. Compile against the same
     // version the consuming Quickstart uses; never use implementation here.
-    compileOnly("org.firstinspires.ftc:RobotCore:12.0.0")
-    compileOnly("org.firstinspires.ftc:Hardware:12.0.0")
-    compileOnly("org.firstinspires.ftc:FtcCommon:12.0.0")
+    compileOnly(libs.bundles.ftc)
 
     // Optional: uncomment if you wire up FTC Dashboard graphing in the OpModes.
     // compileOnly("com.acmerobotics.dashboard:dashboard:0.4.16")
