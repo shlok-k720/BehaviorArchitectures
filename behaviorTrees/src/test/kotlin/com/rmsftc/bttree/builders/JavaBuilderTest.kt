@@ -5,7 +5,6 @@ import com.rmsftc.bttree.blackboard.Blackboard
 import com.rmsftc.bttree.nodes.ParallelPolicy
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.time.Duration
 import java.util.function.Consumer
 import java.util.function.Supplier
 
@@ -62,7 +61,7 @@ class JavaBuilderTest {
                 sequence.succeeder("best effort", Consumer { it.condition("optional") { false } })
                 sequence.retry("intake", 3, Consumer { it.condition("has sample") { attempts++ >= 2 } })
                 sequence.repeat("score twice", 2, Consumer { it.condition("scored") { true } })
-                sequence.waitMs("wait", Duration.ofSeconds(5), Consumer { it.condition("unreached") { true } })
+                sequence.waitMs("wait", 5000, Consumer { it.condition("unreached") { true } })
                 sequence.action("tick only", Supplier { NodeStatus.SUCCESS })
             })
         })

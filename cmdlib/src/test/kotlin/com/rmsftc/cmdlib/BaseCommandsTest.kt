@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.time.Duration
 import java.util.function.BooleanSupplier
 
 class BaseCommandsTest {
@@ -42,7 +41,7 @@ class BaseCommandsTest {
     @Test
     fun `wait finishes after its duration on a fake clock`() {
         val clock = FakeClock()
-        val wait = WaitCommand(Duration.ofMillis(100), clock)
+        val wait = WaitCommand(100, clock)
         val s = scheduler()
         s.schedule(wait)
         s.execute()
@@ -62,7 +61,7 @@ class BaseCommandsTest {
         // withTimeout itself uses the real clock, so race the command
         // against a fake-clock wait to test the same semantics.
         val race = com.rmsftc.cmdlib.cmd.ParallelRaceGroup(
-            forever, WaitCommand(Duration.ofMillis(50), clock)
+            forever, WaitCommand(50, clock)
         )
         val s = scheduler()
         s.schedule(race)

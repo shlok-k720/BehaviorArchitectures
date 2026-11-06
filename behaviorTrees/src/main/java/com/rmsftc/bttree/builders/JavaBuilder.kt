@@ -15,7 +15,6 @@ import com.rmsftc.bttree.nodes.RetryNode
 import com.rmsftc.bttree.nodes.SequenceNode
 import com.rmsftc.bttree.nodes.SucceederNode
 import com.rmsftc.bttree.nodes.TimeoutNode
-import java.time.Duration
 import java.util.function.BooleanSupplier
 import java.util.function.Consumer
 import java.util.function.Supplier
@@ -140,11 +139,6 @@ class JavaBuilder private constructor(private val blackboard: Blackboard) {
             )
         )
         return this
-    }
-
-    // Duration overload: waitMs("intake", Duration.ofSeconds(2)) { ... }
-    fun waitMs(name: String, duration: Duration, block: Consumer<JavaBuilder>): JavaBuilder {
-        return waitMs(name, duration.toMillis(), block)
     }
 
     fun parallel(name: String, policy: ParallelPolicy, block: Consumer<JavaBuilder>): JavaBuilder {

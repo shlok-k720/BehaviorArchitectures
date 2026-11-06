@@ -5,13 +5,6 @@ import com.rmsftc.bttree.BehaviorNode
 import com.rmsftc.bttree.NodeStatus
 
 class TimeoutNode(name: String, blackboard: Blackboard, private val durationMs: Long, private val child: BehaviorNode) : BehaviorNode(name, blackboard) {
-    /**
-     * Creates a timeout from a [java.time.Duration] instead of a raw millisecond count,
-     * so call sites can write `Duration.ofSeconds(2)` instead of a magic number.
-     */
-    constructor(name: String, blackboard: Blackboard, duration: java.time.Duration, child: BehaviorNode) :
-        this(name, blackboard, duration.toMillis(), child)
-
     private var startTimeNs = 0L
 
     override fun children(): List<BehaviorNode> = listOf(child)

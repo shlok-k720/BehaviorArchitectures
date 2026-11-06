@@ -2,7 +2,6 @@ package com.rmsftc.cmdlib.trigger
 
 import com.rmsftc.cmdlib.cmd.ICommand
 import com.rmsftc.cmdlib.scheduler.IScheduler
-import java.time.Duration
 import java.util.function.BooleanSupplier
 import java.util.function.Supplier
 
@@ -130,12 +129,14 @@ class Trigger(
 
     /**
      * A trigger whose output only changes after the input has been stable
-     * for [duration] (button debouncing). [type] picks which edge waits:
-     * [DebounceType.RISING] only delays false → true, [DebounceType.FALLING]
-     * only delays true → false, [DebounceType.BOTH] delays both.
+     * for [millis] milliseconds (button debouncing). [type] picks which
+     * edge waits: [DebounceType.RISING] only delays false → true,
+     * [DebounceType.FALLING] only delays true → false, [DebounceType.BOTH]
+     * delays both. Plain milliseconds, not `java.time.Duration`: `Duration`
+     * is API 26+ on Android and this library targets minSdk 24.
      */
-    fun debounce(duration: Duration, type: DebounceType): Trigger {
-        val nanos = duration.toNanos()
+    fun debounce(millis: Long, type: DebounceType): Trigger {
+        val nanos = millis * 1_000_000L
         var lastInput = condition.asBoolean
         var lastChangeNanos = clock.get()
         var output = lastInput

@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import java.time.Duration
 import java.util.function.BooleanSupplier
 
 class TriggerTest {
@@ -94,7 +93,7 @@ class TriggerTest {
         val s = Scheduler(clock = clock)
         var count = 0
         val debounced = Trigger(BooleanSupplier { value }, s, clock)
-            .debounce(Duration.ofMillis(100), DebounceType.RISING)
+            .debounce(100, DebounceType.RISING)
         debounced.onTrue(Commands.runOnce(Runnable { count++ }))
         value = true
         s.execute()
@@ -113,7 +112,7 @@ class TriggerTest {
         val s = Scheduler(clock = clock)
         var count = 0
         val debounced = Trigger(BooleanSupplier { value }, s, clock)
-            .debounce(Duration.ofMillis(100), DebounceType.RISING)
+            .debounce(100, DebounceType.RISING)
         debounced.onTrue(Commands.runOnce(Runnable { count++ }))
         value = true
         s.execute()

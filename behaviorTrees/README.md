@@ -101,7 +101,7 @@ tree.tick();
 - **`SequenceNode`** processes children in order; it fails on the first failure and succeeds only when all children succeed.
 - **`ReactiveSelectorNode`** re-evaluates children from highest priority on every tick. A higher-priority child can preempt a lower-priority child that is running.
 - **`ParallelNode`** ticks all unfinished children. Use `ParallelPolicy.JOIN` to wait for all children, `SUCCESS` to require all children to succeed, or `FAILURE` to fail only when all children fail.
-- **`TimeoutNode`** ticks its child until the duration in milliseconds elapses, then invalidates the child and returns `FAILURE`. `waitMs` in either builder creates this timeout wrapper around a nested reactive selector. A `java.time.Duration` overload exists for both the node constructor and `waitMs`.
+- **`TimeoutNode`** ticks its child until the duration in milliseconds elapses, then invalidates the child and returns `FAILURE`. `waitMs` in either builder creates this timeout wrapper around a nested reactive selector.
 - **`InverterNode`** swaps its child's SUCCESS and FAILURE; RUNNING passes through unchanged.
 - **`SucceederNode`** turns its child's FAILURE into SUCCESS; SUCCESS and RUNNING pass through unchanged.
 - **`RetryNode`** re-ticks its child until it succeeds, up to a maximum number of attempts (a RUNNING child does not consume an attempt), then returns FAILURE.

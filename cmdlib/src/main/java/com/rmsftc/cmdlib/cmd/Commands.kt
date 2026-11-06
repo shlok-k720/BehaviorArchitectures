@@ -2,7 +2,6 @@ package com.rmsftc.cmdlib.cmd
 
 import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.Status
-import java.time.Duration
 import java.util.EnumMap
 import java.util.function.BooleanSupplier
 import java.util.function.Consumer
@@ -68,10 +67,6 @@ object Commands {
     /** Finishes after [millis] milliseconds. */
     @JvmStatic
     fun waitMs(millis: Long): Command = WaitCommand(millis)
-
-    /** Finishes after [duration] has elapsed. */
-    @JvmStatic
-    fun waitMs(duration: Duration): Command = WaitCommand(duration)
 
     /** Finishes as soon as [condition] becomes true. */
     @JvmStatic

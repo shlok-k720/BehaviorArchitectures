@@ -15,7 +15,6 @@ import com.rmsftc.bttree.nodes.RetryNode
 import com.rmsftc.bttree.nodes.SequenceNode
 import com.rmsftc.bttree.nodes.SucceederNode
 import com.rmsftc.bttree.nodes.TimeoutNode
-import java.time.Duration
 import java.util.function.Consumer
 import java.util.function.Supplier
 
@@ -167,15 +166,6 @@ abstract class NodeGroupBuilder(protected val blackboard: Blackboard) {
                 KotlinSelectorBuilder("$name-inner", blackboard).apply { init.accept(this) }.build()
             )
         )
-    }
-
-    // Duration overloads: waitMs("intake", Duration.ofSeconds(2)) { ... }
-    fun waitMs(name: String, duration: Duration, init: KotlinSelectorBuilder.() -> Unit) {
-        waitMs(name, duration.toMillis(), init)
-    }
-
-    fun waitMs(name: String, duration: Duration, init: Consumer<KotlinSelectorBuilder>) {
-        waitMs(name, duration.toMillis(), init)
     }
 
     fun parallel(name: String, policy: ParallelPolicy, init: KotlinParallelBuilder.() -> Unit) {

@@ -5,7 +5,6 @@ import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.InterruptionBehavior
 import com.rmsftc.cmdlib.Status
 import com.rmsftc.cmdlib.scheduler.IScheduler
-import java.time.Duration
 import java.util.function.BooleanSupplier
 import java.util.function.Consumer
 
@@ -107,11 +106,8 @@ abstract class Command : ICommand {
     /** Runs this command as the deadline alongside [parallel]; finishes when this finishes. */
     fun withDeadline(vararg parallel: ICommand): Command = ParallelDeadlineGroup(this, *parallel)
 
-    /** Finishes this command after [duration], even if it would run longer. */
-    fun withTimeout(duration: Duration): Command = ParallelRaceGroup(this, WaitCommand(duration))
-
     /** Finishes this command after [millis] milliseconds, even if it would run longer. */
-    fun withTimeout(millis: Long): Command = withTimeout(Duration.ofMillis(millis))
+    fun withTimeout(millis: Long): Command = ParallelRaceGroup(this, WaitCommand(millis))
 
     /** Finishes this command as soon as [condition] becomes true. */
     fun until(condition: BooleanSupplier): Command =

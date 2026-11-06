@@ -87,7 +87,7 @@ is parked and retried every tick.
   ends; `ScheduleCommand` fires and forgets.
 - **Triggers:** `Trigger(BooleanSupplier)` bindings — `onTrue`, `onFalse`,
   `whileTrue`, `whileFalse`, `toggleOnTrue`, `onChange`, `ifTrue`, `and` /
-  `or` / `negate`, `debounce(Duration, RISING/FALLING/BOTH)`. Gamepad bindings
+  `or` / `negate`, `debounce(millis, RISING/FALLING/BOTH)`. Gamepad bindings
   belong in the `ftc` module, not here.
 
 ## Tests

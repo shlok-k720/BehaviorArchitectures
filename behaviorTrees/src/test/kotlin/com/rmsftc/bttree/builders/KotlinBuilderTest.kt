@@ -6,7 +6,6 @@ import com.rmsftc.bttree.nodes.ParallelPolicy
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
-import java.time.Duration
 import java.util.function.Consumer
 import java.util.function.Supplier
 
@@ -59,7 +58,7 @@ class KotlinBuilderTest {
                 succeeder("best effort") { condition("optional") { false } }
                 retry("intake", 3) { condition("has sample") { attempts++ >= 2 } }
                 repeat("score twice", 2) { condition("scored") { true } }
-                waitMs("wait", Duration.ofSeconds(5)) { condition("unreached") { true } }
+                waitMs("wait", 5000) { condition("unreached") { true } }
             }
         }
 
