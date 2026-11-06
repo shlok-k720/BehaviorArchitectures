@@ -34,7 +34,7 @@ publishing {
     publications {
         create<MavenPublication>("release") {
             groupId = project.group.toString()
-            artifactId = "core"
+            artifactId = "fsm"
             version = project.version.toString()
 
             afterEvaluate {

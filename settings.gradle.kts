@@ -16,5 +16,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "BehaviorArchitectures"
 
-include(":core")
 include(":ftc")
+include(":behaviorTrees")
+include(":cmdlib")
+include(":fsm")

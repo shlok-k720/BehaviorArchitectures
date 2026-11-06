@@ -34,7 +34,9 @@ kotlin {
 
 dependencies {
     // The core types are part of this module's public API.
-    api(project(":core"))
+    api(project(":fsm"))
+    api(project(":cmdlib"))
+    api(project(":behaviorTrees"))
 
     // Kotlin types appear in the public API, so the stdlib must reach consumers.
     api(kotlin("stdlib"))
