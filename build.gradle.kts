@@ -1,6 +1,10 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
-    alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.jetbrains.kotlin.jvm) apply false
-    alias(libs.plugins.android.library) apply false
+    id("com.android.library") version "8.7.0" apply false
+    kotlin("android") version "2.1.20" apply false
+    kotlin("jvm") version "2.1.20" apply false
+}
+
+allprojects {
+    group = property("GROUP") as String
+    version = property("VERSION_NAME") as String
 }

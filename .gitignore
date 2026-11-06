@@ -17,3 +17,9 @@ local.properties
 **/.DS_Store
 
 .idea/
+
+.gradle/
+build/
+# Do NOT ignore these: JitPack needs them.
+# gradle/wrapper/gradle-wrapper.jar
+# jitpack.yml
