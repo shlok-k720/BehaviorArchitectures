@@ -69,7 +69,7 @@ behavior trees use `NODE_STARTED` / `NODE_TICKED` / `NODE_FINISHED` /
 `NODE_INVALIDATED` / `NODE_RESET`, `fsm` uses `FSM_STATE_ENTERED` /
 `FSM_STATE_EXITED` / `FSM_FINISHED`, and `cmdlib` uses `CMD_SCHEDULED` /
 `CMD_FINISHED` / `CMD_CANCELLED` / `CMD_INTERRUPTED`. The `ftc` module's
-`TreesManager.telemetryLogger(telemetry)` attaches a log system that
+`ArchitectureManager.telemetryLogger(telemetry)` attaches a log system that
 writes to FTC telemetry.
 
 `Logger.reset()` detaches every log system (tests use it between runs).

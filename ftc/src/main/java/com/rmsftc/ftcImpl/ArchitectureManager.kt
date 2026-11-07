@@ -14,8 +14,15 @@ import com.rmsftc.bttree.nodes.RetryNode
 import com.rmsftc.bttree.nodes.SequenceNode
 import com.rmsftc.bttree.nodes.SucceederNode
 import com.rmsftc.bttree.nodes.TimeoutNode
+import com.rmsftc.cmdlib.InterruptionBehavior
 import com.rmsftc.cmdlib.ScheduleResult
+import com.rmsftc.cmdlib.cmd.Command
+import com.rmsftc.cmdlib.cmd.Commands
 import com.rmsftc.cmdlib.cmd.ICommand
+import com.rmsftc.cmdlib.cmd.groups.ParallelCommandGroup
+import com.rmsftc.cmdlib.cmd.groups.ParallelDeadlineGroup
+import com.rmsftc.cmdlib.cmd.groups.ParallelRaceGroup
+import com.rmsftc.cmdlib.cmd.groups.SequentialCommandGroup
 import com.rmsftc.cmdlib.scheduler.Scheduler
 import com.rmsftc.fsm.Case
 import com.rmsftc.fsm.CaseBuilder
@@ -47,9 +54,10 @@ import java.util.function.Supplier
  * - One loop call: [tickAll] ticks every tree, updates every machine, and
  *   executes the scheduler.
  *
- * The builders for trees and state machines live here too, grouped under
- * [Trees] and [StateMachines] (they moved out of the behaviorTrees and fsm
- * modules, so OpMode code has one place to look):
+ * The builders for trees, state machines, and commands live here too:
+ * trees and state machines are grouped under [Trees] and [StateMachines],
+ * commands under [CommandsBuilder] (they moved out of the behaviorTrees
+ * and fsm modules, so OpMode code has one place to look):
  *
  * ```
  * val manager = ArchitectureManager()
@@ -175,6 +183,40 @@ class ArchitectureManager @JvmOverloads constructor(
 
     /** Schedules a command on this manager's scheduler (it gets the shared blackboard). */
     fun schedule(command: ICommand): ScheduleResult = scheduler.schedule(command)
+
+    /**
+     * Builds a command with [CommandsBuilder] (Kotlin DSL) and schedules it
+     * on this manager's scheduler (it gets the shared blackboard). Returns
+     * the built command.
+     *
+     * ```
+     * val auto = manager.commands {
+     *     runOnce({ intake.start() }, "intake")
+     *     waitMs(500)
+     *     runOnce({ shooter.fire() }, "shooter")
+     * }
+     * ```
+     *
+     * Scheduling happens immediately: if this manager was constructed with
+     * a custom `isOpModeActive` that is currently false, the scheduler
+     * rejects the command while disabled — check
+     * `scheduler().isScheduled(cmd)` in that case, or build with
+     * [CommandsBuilder] directly and [schedule] it later.
+     */
+    fun commands(init: CommandsBuilder.() -> Unit): Command {
+        val cmd = CommandsBuilder().apply(init).build()
+        scheduler.schedule(cmd)
+        return cmd
+    }
+
+    /** Builds a command with [CommandsBuilder] (Java-facing overload) and schedules it. See [commands]. */
+    fun commands(block: Consumer<CommandsBuilder>): Command {
+        val builder = CommandsBuilder()
+        block.accept(builder)
+        val cmd = builder.build()
+        scheduler.schedule(cmd)
+        return cmd
+    }
 
     /** Cancels a command scheduled through this manager. */
     fun cancel(command: ICommand) {
@@ -927,3 +969,187 @@ object StateMachines {
 /** Builds a [StateMachine] with the Kotlin DSL. See [StateMachines.CaseDsl]. */
 fun stateMachine(init: StateMachines.KotlinBuilder.() -> Unit): StateMachine =
     StateMachines.KotlinBuilder().apply(init).build()
+
+/**
+ * Builds a command from steps, the command equivalent of the tree and
+ * state-machine builders in [Trees] and [StateMachines]. Build it through
+ * [ArchitectureManager.commands] (which also schedules the result) or
+ * directly when you want to schedule it later yourself:
+ *
+ * ```
+ * val cmd = CommandsBuilder()
+ *     .runOnce({ intake.start() }, "intake")
+ *     .waitMs(500)
+ *     .run({ shooter.spin() }, "shooter")
+ *     .build()
+ * manager.schedule(cmd)
+ * ```
+ *
+ * Every step method returns this builder, so calls chain. The step methods
+ * take the same arguments as the [Commands] factories of the same name, so
+ * `runOnce(action, tokens)` here is `Commands.runOnce(action, tokens)` as a
+ * step. Nested groups ([sequence], [parallel], [race], [deadline]) take a
+ * block that builds their steps with another [CommandsBuilder].
+ *
+ * The built command runs its steps in order ([SequentialCommandGroup]).
+ * For the other shapes — a command that repeats, times out, or runs until a
+ * condition — use the fluent methods on the built command itself
+ * ([Command.repeatedly], [Command.withTimeout], [Command.until]).
+ */
+class CommandsBuilder {
+    private val steps = mutableListOf<ICommand>()
+    private var priority: Int = 0
+    private var interruptionBehavior: InterruptionBehavior = InterruptionBehavior.CANCEL_SELF
+
+    /** Runs [action] once, then finishes. */
+    fun runOnce(action: Runnable, vararg tokens: Any): CommandsBuilder {
+        steps.add(Commands.runOnce(action, *tokens))
+        return this
+    }
+
+    /** Runs [action] on every tick, forever. */
+    fun run(action: Runnable, vararg tokens: Any): CommandsBuilder {
+        steps.add(Commands.run(action, *tokens))
+        return this
+    }
+
+    /** Runs [start] once on start and [end] once on end, never finishing alone. */
+    fun startEnd(start: Runnable, end: Runnable, vararg tokens: Any): CommandsBuilder {
+        steps.add(Commands.startEnd(start, end, *tokens))
+        return this
+    }
+
+    /** Runs [run] on every tick and [end] once on end, never finishing alone. */
+    fun runEnd(run: Runnable, end: Runnable, vararg tokens: Any): CommandsBuilder {
+        steps.add(Commands.runEnd(run, end, *tokens))
+        return this
+    }
+
+    /** Runs [start] once on start, then [run] on every tick, never finishing alone. */
+    fun startRun(start: Runnable, run: Runnable, vararg tokens: Any): CommandsBuilder {
+        steps.add(Commands.startRun(start, run, *tokens))
+        return this
+    }
+
+    /** Prints [message] once, then finishes. */
+    fun print(message: String): CommandsBuilder {
+        steps.add(Commands.print(message))
+        return this
+    }
+
+    /** Finishes after [millis] milliseconds, then moves to the next step. */
+    fun waitMs(millis: Long): CommandsBuilder {
+        steps.add(Commands.waitMs(millis))
+        return this
+    }
+
+    /** Finishes as soon as [condition] becomes true, then moves to the next step. */
+    fun waitUntil(condition: BooleanSupplier): CommandsBuilder {
+        steps.add(Commands.waitUntil(condition))
+        return this
+    }
+
+    /** Adds an already-built command as a step. */
+    fun command(cmd: ICommand): CommandsBuilder {
+        steps.add(cmd)
+        return this
+    }
+
+    /** Runs the block's steps in order, as one step. */
+    fun sequence(init: CommandsBuilder.() -> Unit): CommandsBuilder {
+        steps.add(CommandsBuilder().apply(init).build())
+        return this
+    }
+
+    /** Runs the block's steps in order, as one step (Java-facing overload). */
+    fun sequence(block: Consumer<CommandsBuilder>): CommandsBuilder {
+        val nested = CommandsBuilder()
+        block.accept(nested)
+        steps.add(nested.build())
+        return this
+    }
+
+    /** Runs the block's steps at the same time, as one step; finishes when all finish. */
+    fun parallel(init: CommandsBuilder.() -> Unit): CommandsBuilder {
+        val nested = CommandsBuilder().apply(init)
+        steps.add(ParallelCommandGroup(*nested.steps.toTypedArray()))
+        return this
+    }
+
+    /** Runs the block's steps at the same time, as one step (Java-facing overload). */
+    fun parallel(block: Consumer<CommandsBuilder>): CommandsBuilder {
+        val nested = CommandsBuilder()
+        block.accept(nested)
+        steps.add(ParallelCommandGroup(*nested.steps.toTypedArray()))
+        return this
+    }
+
+    /** Runs the block's steps at the same time, as one step; finishes when the first finishes. */
+    fun race(init: CommandsBuilder.() -> Unit): CommandsBuilder {
+        val nested = CommandsBuilder().apply(init)
+        steps.add(ParallelRaceGroup(*nested.steps.toTypedArray()))
+        return this
+    }
+
+    /** Runs the block's steps at the same time, as one step (Java-facing overload). */
+    fun race(block: Consumer<CommandsBuilder>): CommandsBuilder {
+        val nested = CommandsBuilder()
+        block.accept(nested)
+        steps.add(ParallelRaceGroup(*nested.steps.toTypedArray()))
+        return this
+    }
+
+    /**
+     * Runs [deadline] alongside the block's steps, as one step; finishes
+     * when [deadline] finishes (the other steps are interrupted then).
+     */
+    fun deadline(deadline: ICommand, init: CommandsBuilder.() -> Unit): CommandsBuilder {
+        val nested = CommandsBuilder().apply(init)
+        steps.add(ParallelDeadlineGroup(deadline, *nested.steps.toTypedArray()))
+        return this
+    }
+
+    /** Runs [deadline] alongside the block's steps, as one step (Java-facing overload). */
+    fun deadline(deadline: ICommand, block: Consumer<CommandsBuilder>): CommandsBuilder {
+        val nested = CommandsBuilder()
+        block.accept(nested)
+        steps.add(ParallelDeadlineGroup(deadline, *nested.steps.toTypedArray()))
+        return this
+    }
+
+    /** The priority of the built command (see [Command.priority]). Applied by [build]. */
+    fun priority(priority: Int): CommandsBuilder {
+        this.priority = priority
+        return this
+    }
+
+    /**
+     * What happens when a higher-priority command needs this one's
+     * requirements (see [Command.interruptionBehavior]). Applied by [build].
+     */
+    fun interruptBehavior(behavior: InterruptionBehavior): CommandsBuilder {
+        this.interruptionBehavior = behavior
+        return this
+    }
+
+    /**
+     * Builds the command: no steps becomes [Commands.none]; one step is
+     * returned as-is (wrapped in a one-command group only if it is a bare
+     * [ICommand], not a [Command]); several steps become a
+     * [SequentialCommandGroup]. The [priority] and [interruptBehavior] set
+     * on this builder are applied to the result.
+     */
+    fun build(): Command {
+        val built: Command = when (steps.size) {
+            0 -> Commands.none()
+            1 -> {
+                val only = steps.single()
+                if (only is Command) only else SequentialCommandGroup(only)
+            }
+            else -> SequentialCommandGroup(*steps.toTypedArray())
+        }
+        built.priority = priority
+        built.interruptionBehavior = interruptionBehavior
+        return built
+    }
+}

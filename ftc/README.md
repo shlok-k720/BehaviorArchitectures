@@ -42,6 +42,9 @@ manager.schedule(Commands.runOnce({ shooter.fire() }, "shooter"))
 - `tickAll()` ticks every tree, updates every machine, and executes the
   scheduler. Trees start themselves on their first tick; machines need
   `startAll()` once, in `start()`.
+- `commands { }` builds a command with `CommandsBuilder` and schedules it
+  in one step; use `CommandsBuilder` directly plus `schedule()` to build
+  one and schedule it later.
 - `resetAndInitialize()` clears everything and starts fresh with a new
   board; `invalidateAll()` / `resetAll()` abort or reset everything.
 - `telemetryLogger(telemetry)` writes every log line (tree, machine, and
@@ -51,22 +54,57 @@ manager.schedule(Commands.runOnce({ shooter.fire() }, "shooter"))
 
 The tree and state-machine builders live here, grouped under
 `com.rmsftc.ftcImpl.Trees` and `com.rmsftc.ftcImpl.StateMachines` (plus the
-top-level `com.rmsftc.ftcImpl.stateMachine` function for the Kotlin DSL):
+top-level `com.rmsftc.ftcImpl.stateMachine` function for the Kotlin DSL),
+and the command builder `com.rmsftc.ftcImpl.CommandsBuilder`:
 
 ```kotlin
 // Kotlin
 val tree = Trees.KotlinBuilder.rootTree(board) { action("ok") { NodeStatus.SUCCESS } }
 val machine = stateMachine { case("intake") { onExecute { } } }
+val cmd = CommandsBuilder()
+    .runOnce({ intake.start() }, "intake")
+    .waitMs(500)
+    .build()
 ```
 
 ```java
 // Java
 ReactiveSelectorNode tree = Trees.JavaBuilder.rootTree(board, root -> ...);
 StateMachine machine = StateMachines.JavaBuilder.stateMachine(b -> b.waitMs(State.of("wait"), 500));
+Command cmd = new CommandsBuilder()
+        .runOnce(() -> intake.start(), "intake")
+        .waitMs(500)
+        .build();
 ```
 
-Build through the manager when the tree or machine should share the
-manager's board and be ticked by `tickAll()`.
+Build through the manager when the tree, machine, or command should share
+the manager's board and be ticked by `tickAll()` — `manager.commands { }`
+builds a command with `CommandsBuilder` and schedules it in one step.
+
+## ArchitecturalOpMode
+
+A `LinearOpMode` base class that runs everything through one
+`ArchitectureManager`. Extend it, set up hardware in `onInit()`, and build
+the architectures in `build()`:
+
+```java
+@Autonomous
+public class MyAuto extends ArchitecturalOpMode {
+    @Override
+    protected void build(ArchitectureManager manager) {
+        manager.commands(b -> b
+                .runOnce(() -> intake.start(), "intake")
+                .waitMs(500)
+                .runOnce(() -> shooter.fire(), "shooter"));
+    }
+}
+```
+
+`runOpMode()` is final: it calls `onInit()`, then `build()`, then
+`waitForStart()`, then `manager.startAll()`, then loops `tickAll()` (plus
+`onLoop()` and a telemetry update) while the OpMode is active, and calls
+`onStop()` at the end, which invalidates everything. Call `interrupt()` to
+abort everything and end the run early.
 
 ## ArchitectureConverter
 
@@ -86,13 +124,6 @@ blackboard), it must be driven in exactly one place, a single case
 converts through a one-case machine (so it can only finish by advancing),
 and commands have no FAILURE (a finished command-as-node reports
 SUCCESS, a FAILED tree-as-command still counts as finished).
-
-## TreesManager
-
-The earlier tree-only manager: it manages `ReactiveSelectorNode` roots
-sharing one blackboard, with `tickAll()` / `invalidateAll()` /
-`resetAll()` and the same `telemetryLogger()` helper. New code should use
-`ArchitectureManager`; `TreesManager` stays for existing users.
 
 ## Tests
 

@@ -7,4 +7,4 @@ Modules:
 - `behaviorTrees` — behavior-tree nodes.
 - `cmdlib` — command-based framework (Ivy-style, WPILib v2 lifecycle).
 - `fsm` — switch/case state machines, tick-driven via `update()`.
-- `ftc` — OpMode integration for the modules above: `ArchitectureManager` (one entry point for trees, machines, and commands, holding the tree and state-machine builders), `ArchitectureConverter` (convert between architectures), and `TreesManager`.
+- `ftc` — OpMode integration for the modules above: `ArchitectureManager` (one entry point for trees, machines, and commands, holding the tree, state-machine, and command builders), `ArchitectureConverter` (convert between architectures), and `ArchitecturalOpMode` (a `LinearOpMode` base that runs everything through one manager).
