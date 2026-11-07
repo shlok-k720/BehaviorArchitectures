@@ -33,7 +33,7 @@ import java.util.function.Supplier;
 public class JavaBuilder {
     private final List<Case> cases = new ArrayList<>();
     private State initial;
-    private Supplier<Long> clock = () -> System.nanoTime();
+    private Supplier<Long> clock = System::nanoTime;
 
     /** Single entry point: configures a builder and returns the built machine. */
     public static StateMachine stateMachine(Consumer<JavaBuilder> block) {

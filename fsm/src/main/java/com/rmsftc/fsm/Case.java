@@ -81,6 +81,11 @@ public abstract class Case {
         return machine.getClock().get();
     }
 
+    /** Creates a new Case Builder **/
+    public static CaseBuilder build(State state) {
+        return new CaseBuilder(state);
+    }
+
     // Machine-side access (package-private).
 
     void attach(StateMachine machine) {
