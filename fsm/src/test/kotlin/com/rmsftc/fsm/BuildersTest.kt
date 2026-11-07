@@ -1,10 +1,13 @@
 package com.rmsftc.fsm
 
 import com.rmsftc.fsm.builders.JavaBuilder
+import com.rmsftc.fsm.builders.KotlinBuilder
 import com.rmsftc.fsm.builders.stateMachine
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.util.function.Consumer
 
 class BuildersTest {
 
@@ -13,11 +16,11 @@ class BuildersTest {
         val a = TestCase(State.of("a"))
         val b = TestCase(State.of("b"))
         b.transitionRequest = State.of("a")
-        val m = JavaBuilder.stateMachine()
-            .addCase(a)
-            .addCase(b)
-            .initial(State.of("b"))
-            .build()
+        val m = JavaBuilder.stateMachine { builder ->
+            builder.addCase(a)
+            builder.addCase(b)
+            builder.initial(State.of("b"))
+        }
         m.start()
         assertEquals(b, m.getCurrentCase())
         m.update()
@@ -28,8 +31,67 @@ class BuildersTest {
     fun `java builder rejects an initial state with no case`() {
         val a = TestCase(State.of("a"))
         assertThrows(IllegalArgumentException::class.java) {
-            JavaBuilder.stateMachine().addCase(a).initial(State.of("nope")).build()
+            JavaBuilder.stateMachine { builder ->
+                builder.addCase(a)
+                builder.initial(State.of("nope"))
+            }
         }
+    }
+
+    @Test
+    fun `java builder inline conveniences build the built-in cases`() {
+        var ran = 0
+        var started = 0
+        var ended = 0
+        val clock = FakeClock()
+        val m = JavaBuilder.stateMachine { builder ->
+            builder
+                .instant(State.of("say")) { }
+                .waitMs(State.of("wait"), 50)
+                .run(State.of("run")) { ran++ }
+                .startEnd(State.of("hold"), { started++ }, { ended++ })
+                .print(State.of("print"), "done")
+                .clock(clock.supplier())
+        }
+        // The run case never finishes on its own, so drive it manually:
+        // instant -> wait -> run (stays), then force past it.
+        m.start()
+        m.update()
+        assertEquals(State.of("wait"), m.getCurrentState())
+        clock.advanceMs(50)
+        m.update()
+        assertEquals(State.of("run"), m.getCurrentState())
+        m.update()
+        assertEquals(1, ran)
+        m.transitionTo(State.of("hold"))
+        m.update()
+        assertEquals(1, started)
+        assertEquals(State.of("hold"), m.getCurrentState())
+        m.transitionTo(State.of("print"))
+        m.update()
+        assertEquals(1, ended)
+        // The print case asked to advance in onStart; it applies on the next tick.
+        m.update()
+        assertTrue(m.isFinished())
+    }
+
+    @Test
+    fun `java builder caseBuilder block configures a lambda case`() {
+        var ticked = 0
+        val m = JavaBuilder.stateMachine { builder ->
+            builder.caseBuilder(State.of("a")) { c ->
+                c.setOnExecute {
+                    ticked++
+                    if (ticked == 2) c.transitionToNext()
+                }
+            }
+            builder.addCase(TestCase(State.of("b")))
+        }
+        m.start()
+        m.update()
+        assertEquals(State.of("a"), m.getCurrentState())
+        m.update()
+        assertEquals(State.of("b"), m.getCurrentState())
     }
 
     @Test
@@ -69,7 +131,13 @@ class BuildersTest {
     }
 
     @Test
-    fun `kotlin dsl rejects an unknown initial state`() {
+    fun `kotlin dsl rejects duplicate names and unknown initial states`() {
+        assertThrows(IllegalArgumentException::class.java) {
+            stateMachine {
+                case("a") {}
+                case("a") {}
+            }
+        }
         assertThrows(IllegalArgumentException::class.java) {
             stateMachine {
                 case("a") {}
@@ -94,7 +162,7 @@ class BuildersTest {
         m.update()
         assertEquals(State.of("next"), m.getCurrentState())
         m.update()
-        assertEquals(true, fired)
+        assertTrue(fired)
     }
 
     @Test
@@ -110,5 +178,19 @@ class BuildersTest {
         m.start()
         m.update()
         assertEquals(State.of("b"), seen?.state)
+    }
+
+    @Test
+    fun `kotlin dsl consumer overloads work from Java compatible callers`() {
+        val m = KotlinBuilder.stateMachine(Consumer { root ->
+            root.case(State.of("a"), Consumer { dsl ->
+                dsl.onExecute(Consumer { d -> d.transitionTo("b") })
+            })
+            root.case(State.of("b"), Consumer { })
+        })
+        m.start()
+        assertEquals(State.of("a"), m.getCurrentState())
+        m.update()
+        assertEquals(State.of("b"), m.getCurrentState())
     }
 }

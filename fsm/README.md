@@ -103,15 +103,24 @@ in `com.rmsftc.fsm.cases`:
 Java:
 
 ```java
-StateMachine machine = JavaBuilder.stateMachine()
+StateMachine machine = JavaBuilder.stateMachine(b -> b
         .addCase(intake)
         .addCase(shoot)
-        .initial(State.of("intake"))
-        .build();
+        .initial(State.of("intake")));
 ```
 
+The builder also adds the built-in cases inline: `waitMs(state, millis)`,
+`waitUntil(state, condition)`, `run(state, action)`,
+`instant(state, action)`, `startEnd(state, onStart, onEnd)`,
+`print(state, message)`, and `caseBuilder(state, block)` for a lambda
+case. Every method takes a `Consumer`, like BehaviorTrees' `JavaBuilder`.
+
 Kotlin DSL (same core types, Kotlin-idiomatic: the blocks run with the
-case's DSL as receiver, so transitions are called from inside them):
+case's DSL as receiver, so transitions are called from inside them).
+Every DSL method also has a `Consumer` overload, and
+`KotlinBuilder.stateMachine(Consumer)` is the Java entry point, so the
+Kotlin builder is usable from Java too — see
+`src/test/java/com/rmsftc/fsm/examples/`:
 
 ```kotlin
 val machine = stateMachine {
