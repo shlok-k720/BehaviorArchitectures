@@ -40,7 +40,7 @@ public class StateMachine {
 
     /** A machine over {@code cases} in order, using {@code System.nanoTime()}. */
     public StateMachine(Case... cases) {
-        this(() -> System.nanoTime(), cases);
+        this(System::nanoTime, cases);
     }
 
     /** A machine over {@code cases} in order, with an injected nanosecond clock (for tests). */
