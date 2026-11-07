@@ -1,10 +1,8 @@
 # Finite State Machine (`fsm`)
 
-A Java-first, pure-JVM finite state machine for FTC robots, in the shape of
-a normal switch/case machine: each state is a `Case`, and the OpMode loop
-ticks the current case once per loop. The model follows 23641 Cuberobot's
-`util/fsm` (State/Transition/StateMachine), with direct case references
-instead of string names, a per-tick `execute()`, and an injected clock.
+A Java-first, pure-JVM finite state machine for FTC robots, shaped like a
+normal Java switch statement: each state is a `Case`, and the OpMode loop
+ticks the current case once per loop.
 
 ## Install from JitPack
 
@@ -17,36 +15,51 @@ dependencies {
 Replace `<version>` with a release tag, such as `v0.2.0`, after it has been
 built by JitPack.
 
+## States
+
+A state is a `State`: either a string or an enum value. Internally a state
+is just its string form — the string itself, or the enum constant's name —
+so `State.of("INTAKE")` and `State.of(IntakeStates.INTAKE)` are the same
+state.
+
+```java
+enum IntakeStates { IDLE, INTAKING, FULL }
+
+State.of("IDLE");               // from a string
+State.of(IntakeStates.FULL);    // from an enum
+```
+
 ## The model
 
 A **case** is a state. The machine holds an ordered list of them, one active
 at a time, and `update()` is the `switch`:
 
 ```java
-// Subclass Case for a state with per-tick work:
 class IntakeCase extends Case {
-    IntakeCase() { super("intake"); }
+    IntakeCase() { super(State.of(IntakeStates.IDLE)); }
 
-    @Override public void onEnter() { intake.start(); }
-    @Override public void execute() { /* runs every tick while active */ }
-    @Override public void onExit() { intake.stop(); }
+    @Override public void onStart() { intake.start(); }
+    @Override public void onExecute() { /* runs every tick while active */ }
+    @Override public void onTransition(Case other) { intake.stop(); }
 }
 ```
 
-Or build one from lambdas with `SimpleCase`, the 23641 style (work started
-in `onEnter`, transitions poll conditions):
+Lifecycle: `onStart()` runs on entry, `onExecute()` runs every tick, and
+`onTransition(other)` runs on the case being left, just before the switch —
+with the case being transitioned into (or null when the machine stops or
+finishes). It is the opposite of `onStart`.
+
+A case moves the machine with the `transition` utilities, applied at the
+end of the current tick:
 
 ```java
-new SimpleCase("intake", () -> intake.start(), null, () -> intake.stop())
+transition(State.of(IntakeStates.FULL));  // jump to a state
+transition(otherCase);                    // jump to a case
+transitionToNext();                       // advance to the next case in the list
 ```
 
-A case ends in priority order: an explicit `transition(other)` call inside
-`execute()` (applied at the end of the tick); a declarative transition
-whose condition is true (checked in the order added, once the case has been
-active at least its minimum time); or its maximum time expiring (to its
-fallback case, or the next case in the list). A transition with a `null`
-target advances to the next case, like falling through. Advancing past the
-last case stops the machine.
+Advancing past the last case stops the machine. Outside a case, the same
+moves are `machine.transitionTo(state)` and `machine.transitionToNext()`.
 
 ```java
 StateMachine machine = new StateMachine(intake, shoot, park);
@@ -57,28 +70,33 @@ machine.update();   // once per loop
 Times are plain `long` milliseconds (no `java.time.Duration`: `Duration` is
 API 26+ on Android and this library targets minSdk 24).
 
-## Transitions and timing
+## CaseBuilder
+
+A case built from lambdas, like Ivy's `CommandBuilder`:
 
 ```java
-intake.minTimeMs(600)              // transitions cannot fire before 600 ms
-      .addTransition(() -> intake.isFull(), shoot)
-      .addTransition(() -> intake.isJammed())   // null target: advance
-      .maxTimeMs(3000)             // forced finish after 3 s
-      .fallback(shoot);            // where the timeout goes
+CaseBuilder wait = new CaseBuilder(State.of("WAIT"));
+wait.setOnExecute(() -> {
+    if (intake.isFull()) wait.transitionToNext();
+});
 ```
 
-`transition(other)` inside `execute()` is never gated by either time — it
-is the case deciding for itself, right now. From outside a case, use
-`machine.transitionTo(target)` (applied at the end of the current tick).
+Defaults are all no-ops, so a bare builder runs forever until something
+transitions the machine away. `CaseBuilder.build(state)` is the static
+factory, like Ivy's `Command.build()`.
 
-## Machine lifecycle
+## Built-in cases
 
-`start()` begins from the first case (or `start(case)` from a given one);
-`update()` ticks; `stop()` exits the current case; `reset()` stops and
-rewinds to the first case. `isFinished()` is true once the machine has run
-out of cases; `getCurrentCase()` is the active case (null when stopped).
-`StateMachineListener` reports `onStarted`, `onTransition`, `onFinished`,
-and `onStopped` — all default no-ops, so implement only what you need.
+The seven base commands from `cmdlib`, mirrored as cases (each takes its
+own state name). `CaseBuilder` is the Functional one; the other six live
+in `com.rmsftc.fsm.cases`:
+
+- `WaitCase(state, millis)` — waits, then advances (or jumps to a given target state).
+- `WaitUntilCase(state, condition)` — waits for a condition, then advances (or jumps).
+- `RunCase(state, action)` — runs the action every tick, never finishes on its own.
+- `InstantCase(state, action)` — runs once, then advances (or jumps).
+- `StartEndCase(state, onStart, onEnd)` — start action on entry, end action on exit.
+- `PrintCase(state, message)` — prints once (to `System.out`), then advances (or jumps).
 
 ## Builders
 
@@ -88,23 +106,22 @@ Java:
 StateMachine machine = JavaBuilder.stateMachine()
         .addCase(intake)
         .addCase(shoot)
-        .initial(intake)
-        .onTransition((from, to) -> telemetry.addData("state", to.getName()))
+        .initial(State.of("intake"))
         .build();
 ```
 
-Kotlin DSL (targets are case *names*, resolved when the machine is built):
+Kotlin DSL (same core types, Kotlin-idiomatic: the blocks run with the
+case's DSL as receiver, so transitions are called from inside them):
 
 ```kotlin
 val machine = stateMachine {
     case("intake") {
-        onEnter { intake.start() }
-        transition({ intake.isFull }, "shoot")
-        maxTimeMs(3000)
-        fallback("shoot")
+        onStart { intake.start() }
+        onExecute { if (intake.isFull) transitionTo("shoot") }
     }
-    case("shoot") {
-        onEnter { shooter.fire() }
+    case(IntakeStates.SHOOT) {
+        onStart { shooter.fire() }
+        onExecute { if (shooter.done()) transitionToNext() }
     }
 }
 ```

@@ -4,103 +4,72 @@ import com.rmsftc.fsm.builders.JavaBuilder
 import com.rmsftc.fsm.builders.stateMachine
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class BuildersTest {
 
     @Test
-    fun `java builder builds an ordered machine with initial and listener`() {
-        val a = TestCase("a")
-        val b = TestCase("b")
-        val seen = ArrayList<String>()
+    fun `java builder builds an ordered machine with initial by state`() {
+        val a = TestCase(State.of("a"))
+        val b = TestCase(State.of("b"))
+        b.transitionRequest = State.of("a")
         val m = JavaBuilder.stateMachine()
             .addCase(a)
             .addCase(b)
-            .initial(b)
-            .onTransition { from, to -> seen.add("${from.name}->${to.name}") }
+            .initial(State.of("b"))
             .build()
-        b.addTransition({ true }, a)
         m.start()
         assertEquals(b, m.getCurrentCase())
         m.update()
         assertEquals(a, m.getCurrentCase())
-        assertEquals(listOf("b->a"), seen)
     }
 
     @Test
-    fun `java builder rejects an initial case that was never added`() {
-        val a = TestCase("a")
-        val outsider = TestCase("outsider")
+    fun `java builder rejects an initial state with no case`() {
+        val a = TestCase(State.of("a"))
         assertThrows(IllegalArgumentException::class.java) {
-            JavaBuilder.stateMachine().addCase(a).initial(outsider).build()
+            JavaBuilder.stateMachine().addCase(a).initial(State.of("nope")).build()
         }
     }
 
     @Test
-    fun `kotlin dsl builds a machine with named transitions and timing`() {
+    fun `kotlin dsl builds a machine with string, enum and state cases`() {
         var full = false
         val clock = FakeClock()
         val m = stateMachine {
             case("intake") {
-                onEnter { }
-                transition({ full }, "shoot")
-                maxTimeMs(3000)
-                fallback("shoot")
+                onExecute { if (full) transitionTo(TestStates.WORKING) }
             }
-            case("shoot") {
-                onTick { }
+            case(TestStates.WORKING) {
+                onExecute { transitionToNext() }
             }
+            case(State.of("done")) {}
             clock(clock.supplier())
         }
         m.start()
-        assertEquals("intake", m.getCurrentCase()?.name)
-        clock.advanceMs(2999)
+        assertEquals(State.of("intake"), m.getCurrentState())
         m.update()
-        assertEquals("intake", m.getCurrentCase()?.name)
-        clock.advanceMs(1)
-        m.update()
-        assertEquals("shoot", m.getCurrentCase()?.name)
-        // And the declarative path: a fresh machine fires on the condition.
+        assertEquals(State.of("intake"), m.getCurrentState())
         full = true
-        val m2 = stateMachine {
-            case("intake") {
-                transition({ full }, "shoot")
-            }
-            case("shoot") {}
-        }
-        m2.start()
-        m2.update()
-        assertEquals("shoot", m2.getCurrentCase()?.name)
+        m.update()
+        assertEquals(State.of("WORKING"), m.getCurrentState())
+        m.update()
+        assertEquals(State.of("done"), m.getCurrentState())
     }
 
     @Test
-    fun `kotlin dsl initial picks the start case by name`() {
+    fun `kotlin dsl initial picks the start case by name and enum`() {
         val m = stateMachine {
             case("a") {}
-            case("b") {}
-            initial("b")
+            case(TestStates.WORKING) {}
+            initial(TestStates.WORKING)
         }
         m.start()
-        assertEquals("b", m.getCurrentCase()?.name)
+        assertEquals(State.of("WORKING"), m.getCurrentState())
     }
 
     @Test
-    fun `kotlin dsl rejects duplicate names and unknown targets`() {
-        assertThrows(IllegalArgumentException::class.java) {
-            stateMachine {
-                case("a") {}
-                case("a") {}
-            }
-        }
-        assertThrows(IllegalArgumentException::class.java) {
-            stateMachine {
-                case("a") {
-                    transition({ true }, "nope")
-                }
-                case("b") {}
-            }
-        }
+    fun `kotlin dsl rejects an unknown initial state`() {
         assertThrows(IllegalArgumentException::class.java) {
             stateMachine {
                 case("a") {}
@@ -111,20 +80,35 @@ class BuildersTest {
 
     @Test
     fun `kotlin dsl mixes prebuilt cases with declared ones`() {
-        val prebuilt = TestCase("prebuilt")
+        val prebuilt = TestCase(State.of("prebuilt"))
         var fired = false
         val m = stateMachine {
             add(prebuilt)
             case("next") {
-                onTick { fired = true }
+                onExecute { fired = true }
             }
         }
-        prebuilt.addTransition({ true })
+        prebuilt.advanceOnExecute = true
         m.start()
-        assertEquals("prebuilt", m.getCurrentCase()?.name)
+        assertEquals(State.of("prebuilt"), m.getCurrentState())
         m.update()
-        assertEquals("next", m.getCurrentCase()?.name)
+        assertEquals(State.of("next"), m.getCurrentState())
         m.update()
-        assertTrue(fired)
+        assertEquals(true, fired)
+    }
+
+    @Test
+    fun `kotlin dsl onTransition receives the incoming case`() {
+        var seen: Case? = null
+        val m = stateMachine {
+            case("a") {
+                onTransition { other -> seen = other }
+                onExecute { transitionTo("b") }
+            }
+            case("b") {}
+        }
+        m.start()
+        m.update()
+        assertEquals(State.of("b"), seen?.state)
     }
 }

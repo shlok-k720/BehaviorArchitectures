@@ -10,14 +10,16 @@ import org.junit.jupiter.api.Test
 class StateMachineTest {
 
     @Test
-    fun `start runs the first case onEnter and update ticks it`() {
-        val a = TestCase("a")
-        val b = TestCase("b")
+    fun `start runs the first case onStart and update ticks it`() {
+        val a = TestCase(State.of(TestStates.IDLE))
+        val b = TestCase(State.of(TestStates.WORKING))
         val (m, _) = machine(a, b)
         assertNull(m.getCurrentCase())
+        assertNull(m.getCurrentState())
         m.start()
         assertEquals(a, m.getCurrentCase())
-        assertEquals(1, a.enters)
+        assertEquals(State.of(TestStates.IDLE), m.getCurrentState())
+        assertEquals(1, a.starts)
         assertTrue(m.isRunning())
         assertFalse(m.isFinished())
         m.update()
@@ -27,266 +29,177 @@ class StateMachineTest {
     }
 
     @Test
-    fun `explicit transition switches cases with exit and enter`() {
-        val a = TestCase("a")
-        val b = TestCase("b")
+    fun `transition by state switches cases, onTransition sees the incoming case`() {
+        val a = TestCase(State.of("a"))
+        val b = TestCase(State.of("b"))
         val (m, _) = machine(a, b)
         m.start()
-        a.transitionTarget = b
+        a.transitionRequest = State.of("b")
         m.update()
         assertEquals(b, m.getCurrentCase())
-        assertEquals(1, a.exits)
-        assertEquals(1, b.enters)
+        assertEquals(1, a.transitions)
+        assertEquals(b, a.lastTransitionOther)
+        assertEquals(1, b.starts)
         assertEquals(1, a.ticks)
-        // The new case ticks from the next update, not the same one.
         assertEquals(0, b.ticks)
-        m.update()
-        assertEquals(1, b.ticks)
     }
 
     @Test
-    fun `declarative transition fires on its condition, first match wins`() {
-        val a = TestCase("a")
-        val b = TestCase("b")
-        val c = TestCase("c")
-        var first = false
-        var second = false
-        a.addTransition({ first }, b)
-        a.addTransition({ second }, c)
-        val (m, _) = machine(a, b, c)
-        m.start()
-        m.update()
-        assertEquals(a, m.getCurrentCase())
-        second = true
-        m.update()
-        assertEquals(c, m.getCurrentCase())
-        // First match wins even when both are true.
-        val (m2, _) = machine(a, b, c)
-        first = true
-        m2.start()
-        m2.update()
-        assertEquals(b, m2.getCurrentCase())
-    }
-
-    @Test
-    fun `minTime gates declarative transitions`() {
-        val a = TestCase("a")
-        val b = TestCase("b")
-        var ready = true
-        a.minTimeMs(100).addTransition({ ready }, b)
-        val (m, clock) = machine(a, b)
-        m.start()
-        m.update()
-        assertEquals(a, m.getCurrentCase())
-        clock.advanceMs(99)
-        m.update()
-        assertEquals(a, m.getCurrentCase())
-        clock.advanceMs(1)
-        m.update()
-        assertEquals(b, m.getCurrentCase())
-    }
-
-    @Test
-    fun `maxTime goes to the fallback`() {
-        val a = TestCase("a")
-        val b = TestCase("b")
-        val fallback = TestCase("fallback")
-        a.maxTimeMs(50).fallback(fallback)
-        val (m, clock) = machine(a, b, fallback)
-        m.start()
-        clock.advanceMs(49)
-        m.update()
-        assertEquals(a, m.getCurrentCase())
-        clock.advanceMs(1)
-        m.update()
-        assertEquals(fallback, m.getCurrentCase())
-    }
-
-    @Test
-    fun `maxTime with no fallback advances to the next case`() {
-        val a = TestCase("a")
-        val b = TestCase("b")
-        a.maxTimeMs(50)
-        val (m, clock) = machine(a, b)
-        m.start()
-        clock.advanceMs(50)
-        m.update()
-        assertEquals(b, m.getCurrentCase())
-    }
-
-    @Test
-    fun `null-target transition advances, past the end finishes the machine`() {
-        val a = TestCase("a")
-        val b = TestCase("b")
-        a.addTransition({ true })
-        b.addTransition({ true })
+    fun `transitionToNext advances, past the end finishes with onTransition null`() {
+        val a = TestCase(State.of("a"))
+        val b = TestCase(State.of("b"))
         val (m, _) = machine(a, b)
-        var finishedEvents = 0
-        m.addListener(object : StateMachineListener {
-            override fun onFinished(machine: StateMachine) {
-                finishedEvents++
-            }
-        })
         m.start()
+        a.advanceOnExecute = true
         m.update()
         assertEquals(b, m.getCurrentCase())
-        assertEquals(1, a.exits)
+        assertEquals(1, a.transitions)
+        b.advanceOnExecute = true
         m.update()
         assertTrue(m.isFinished())
         assertFalse(m.isRunning())
         assertNull(m.getCurrentCase())
-        assertEquals(1, b.exits)
-        assertEquals(1, finishedEvents)
-        // Updates after finishing are no-ops.
+        assertEquals(1, b.transitions)
+        assertNull(b.lastTransitionOther)
         m.update()
         assertEquals(1, b.ticks)
     }
 
     @Test
-    fun `stop exits the current case and reset plus start begins again`() {
-        val a = TestCase("a")
-        val b = TestCase("b")
+    fun `transitionTo from outside switches at the end of the tick`() {
+        val a = TestCase(State.of("a"))
+        val b = TestCase(State.of("b"))
         val (m, _) = machine(a, b)
-        var stopped = 0
-        m.addListener(object : StateMachineListener {
-            override fun onStopped(machine: StateMachine) {
-                stopped++
-            }
-        })
+        m.start()
+        m.transitionTo(State.of("b"))
+        assertEquals(a, m.getCurrentCase())
+        m.update()
+        assertEquals(b, m.getCurrentCase())
+        assertEquals(1, a.transitions)
+    }
+
+    @Test
+    fun `stop runs onTransition null and reset plus start begins again`() {
+        val a = TestCase(State.of("a"))
+        val b = TestCase(State.of("b"))
+        val (m, _) = machine(a, b)
         m.start()
         m.update()
         m.stop()
         assertTrue(m.isFinished())
-        assertEquals(1, a.exits)
-        assertEquals(1, stopped)
+        assertEquals(1, a.transitions)
+        assertNull(a.lastTransitionOther)
         m.update()
         assertEquals(1, a.ticks)
         m.reset()
         m.start()
         assertEquals(a, m.getCurrentCase())
-        assertEquals(2, a.enters)
+        assertEquals(2, a.starts)
         m.update()
         assertEquals(2, a.ticks)
     }
 
     @Test
-    fun `start at a given case begins mid-list, unknown case throws`() {
-        val a = TestCase("a")
-        val b = TestCase("b")
-        val outsider = TestCase("outsider")
+    fun `start at a state begins mid-list, unknown state throws`() {
+        val a = TestCase(State.of("a"))
+        val b = TestCase(State.of("b"))
         val (m, _) = machine(a, b)
-        m.start(b)
+        m.start(State.of("b"))
         assertEquals(b, m.getCurrentCase())
-        assertEquals(0, a.enters)
-        assertThrows(IllegalArgumentException::class.java) { m.start(outsider) }
+        assertEquals(0, a.starts)
+        assertThrows(IllegalArgumentException::class.java) { m.start(State.of("nope")) }
     }
 
     @Test
-    fun `listeners see started, transitions and finished in order`() {
-        val a = TestCase("a")
-        val b = TestCase("b")
-        val events = ArrayList<String>()
-        val (m, _) = machine(a, b)
-        m.addListener(object : StateMachineListener {
-            override fun onStarted(machine: StateMachine) {
-                events.add("started")
-            }
-
-            override fun onTransition(machine: StateMachine, from: Case, to: Case) {
-                events.add("transition ${from.name} -> ${to.name}")
-            }
-
-            override fun onFinished(machine: StateMachine) {
-                events.add("finished")
-            }
-        })
-        a.addTransition({ true })
-        b.addTransition({ true })
-        m.start()
-        m.update()
-        m.update()
-        assertEquals(listOf("started", "transition a -> b", "finished"), events)
+    fun `duplicate state in the list throws`() {
+        assertThrows(IllegalArgumentException::class.java) {
+            machine(TestCase(State.of("a")), TestCase(State.of("a")))
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            StateMachine(TestCase(State.of(TestStates.IDLE)), TestCase(State.of("IDLE")))
+        }
     }
 
     @Test
-    fun `transitionTo from outside switches at the end of the tick`() {
-        val a = TestCase("a")
-        val b = TestCase("b")
-        val (m, _) = machine(a, b)
-        m.start()
-        m.transitionTo(b)
-        assertEquals(a, m.getCurrentCase())
-        m.update()
-        assertEquals(b, m.getCurrentCase())
-        assertEquals(1, a.exits)
-        assertEquals(1, b.enters)
-    }
-
-    @Test
-    fun `self-transition restarts the case with exit and enter`() {
-        val a = TestCase("a")
-        val (m, clock) = machine(a)
-        a.minTimeMs(100)
-        m.start()
-        clock.advanceMs(100)
-        a.transitionTarget = a
-        m.update()
-        assertEquals(a, m.getCurrentCase())
-        assertEquals(1, a.exits)
-        assertEquals(2, a.enters)
-        // The timer restarted: minTime gates again.
-        a.addTransition({ true }, a)
-        m.update()
-        assertEquals(1, a.exits)
-    }
-
-    @Test
-    fun `transition to a case outside the machine throws`() {
-        val a = TestCase("a")
-        val outsider = TestCase("outsider")
+    fun `transition to an unknown state throws`() {
+        val a = TestCase(State.of("a"))
         val (m, _) = machine(a)
         m.start()
-        a.transitionTarget = outsider
-        assertThrows(IllegalStateException::class.java) { m.update() }
+        assertThrows(IllegalArgumentException::class.java) { m.transitionTo(State.of("nope")) }
+        assertThrows(IllegalArgumentException::class.java) { a.transition(State.of("nope")) }
     }
 
     @Test
-    fun `case validation rejects bad timing and null targets`() {
-        val a = TestCase("a")
-        assertThrows(IllegalArgumentException::class.java) { a.minTimeMs(-1) }
-        assertThrows(IllegalArgumentException::class.java) { a.maxTimeMs(-1) }
-        a.minTimeMs(100)
-        assertThrows(IllegalArgumentException::class.java) { a.maxTimeMs(50) }
-        assertThrows(IllegalArgumentException::class.java) { a.requestNullTransition() }
-        assertThrows(IllegalArgumentException::class.java) { a.addTransition(null as java.util.function.Supplier<Boolean>?) }
+    fun `transition while not running throws, and a detached case cannot transition`() {
+        val a = TestCase(State.of("a"))
+        val b = TestCase(State.of("b"))
+        val (m, _) = machine(a, b)
+        assertThrows(IllegalStateException::class.java) { m.transitionTo(State.of("b")) }
+        assertThrows(IllegalStateException::class.java) { m.transitionToNext() }
+        val detached = TestCase(State.of("detached"))
+        assertThrows(IllegalStateException::class.java) { detached.transition(State.of("a")) }
+        assertThrows(IllegalStateException::class.java) { detached.transitionToNext() }
     }
 
     @Test
-    fun `simple case runs its lambdas`() {
+    fun `self-transition restarts the case`() {
+        val a = TestCase(State.of("a"))
+        val (m, _) = machine(a)
+        m.start()
+        a.transitionRequest = State.of("a")
+        m.update()
+        assertEquals(a, m.getCurrentCase())
+        assertEquals(1, a.transitions)
+        assertEquals(a, a.lastTransitionOther)
+        assertEquals(2, a.starts)
+    }
+
+    @Test
+    fun `caseBuilder runs its lambdas and can transition through itself`() {
+        val a = CaseBuilder(State.of("a"))
         var entered = 0
         var ticked = 0
-        var exited = 0
-        val c = SimpleCase("s", { entered++ }, { ticked++ }, { exited++ })
-        val (m, _) = machine(c)
+        var exitedOther: Case? = null
+        a.setOnStart { entered++ }
+        a.setOnExecute {
+            ticked++
+            if (ticked == 2) a.transitionToNext()
+        }
+        a.setOnTransition { other -> exitedOther = other }
+        val b = TestCase(State.of("b"))
+        val (m, _) = machine(a, b)
         m.start()
         assertEquals(1, entered)
         m.update()
+        assertEquals(a, m.getCurrentCase())
         m.update()
-        assertEquals(2, ticked)
-        m.stop()
-        assertEquals(1, exited)
+        assertEquals(b, m.getCurrentCase())
+        assertEquals(b, exitedOther)
     }
 
     @Test
-    fun `explicit transition wins over a declarative one on the same tick`() {
-        val a = TestCase("a")
-        val b = TestCase("b")
-        val c = TestCase("c")
-        a.addTransition({ true }, c)
-        val (m, _) = machine(a, b, c)
+    fun `caseBuilder defaults are no-ops and run forever until transitioned away`() {
+        val a = CaseBuilder.build(State.of("a"))
+        val b = TestCase(State.of("b"))
+        val (m, _) = machine(a, b)
         m.start()
-        a.transitionTarget = b
+        repeat(5) { m.update() }
+        assertEquals(a, m.getCurrentCase())
+        m.transitionTo(State.of("b"))
         m.update()
         assertEquals(b, m.getCurrentCase())
+    }
+
+    @Test
+    fun `last transition request in a tick wins`() {
+        val a = TestCase(State.of("a"))
+        val b = TestCase(State.of("b"))
+        val c = TestCase(State.of("c"))
+        val (m, _) = machine(a, b, c)
+        m.start()
+        m.transitionTo(State.of("b"))
+        m.transitionTo(State.of("c"))
+        m.update()
+        assertEquals(c, m.getCurrentCase())
     }
 }

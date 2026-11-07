@@ -2,37 +2,47 @@ package com.rmsftc.fsm
 
 import java.util.function.Supplier
 
+/** States for the tests, as an enum (string form = the constant name). */
+enum class TestStates {
+    IDLE, WORKING, DONE
+}
+
 /** A scripted Case for tests: counts lifecycle calls, optionally requests a transition. */
-class TestCase(name: String? = null) : Case(name) {
-    var enters = 0
+class TestCase(state: State) : Case(state) {
+    var starts = 0
         private set
     var ticks = 0
         private set
-    var exits = 0
+    var transitions = 0
+        private set
+    var lastTransitionOther: Case? = null
         private set
 
-    /** If set, execute() requests a transition to this case once, then clears it. */
-    var transitionTarget: Case? = null
+    /** If set, onExecute() requests a transition to this state once, then clears it. */
+    var transitionRequest: State? = null
 
-    override fun execute() {
+    /** If true, onExecute() requests an advance once, then clears it. */
+    var advanceOnExecute = false
+
+    override fun onStart() {
+        starts++
+    }
+
+    override fun onExecute() {
         ticks++
-        transitionTarget?.let {
+        transitionRequest?.let {
             transition(it)
-            transitionTarget = null
+            transitionRequest = null
+        }
+        if (advanceOnExecute) {
+            transitionToNext()
+            advanceOnExecute = false
         }
     }
 
-    override fun onEnter() {
-        enters++
-    }
-
-    override fun onExit() {
-        exits++
-    }
-
-    /** Calls the protected transition(null) to prove it throws. */
-    fun requestNullTransition() {
-        transition(null as Case?)
+    override fun onTransition(other: Case?) {
+        transitions++
+        lastTransitionOther = other
     }
 }
 

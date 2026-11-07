@@ -1,80 +1,72 @@
 package com.rmsftc.fsm.builders
 
 import com.rmsftc.fsm.Case
-import com.rmsftc.fsm.SimpleCase
+import com.rmsftc.fsm.CaseBuilder
+import com.rmsftc.fsm.State
 import com.rmsftc.fsm.StateMachine
-import com.rmsftc.fsm.StateMachineListener
+import java.util.function.Consumer
 import java.util.function.Supplier
 
 @DslMarker
 annotation class FSMMarker
 
 /**
- * One case inside the [stateMachine] DSL. Targets of [transition] and
- * [fallback] are case *names*, resolved when the machine is built.
+ * One case inside the [stateMachine] DSL. The [onStart], [onExecute] and
+ * [onTransition] blocks run with this as their receiver, so transitions
+ * are called from inside them:
  *
  * <pre>{@code
  * val machine = stateMachine {
  *     case("intake") {
- *         onEnter { intake.start() }
- *         onTick { telemetry.addData("intake", intake.power) }
- *         transition({ intake.isFull }, "shoot")
- *         maxTimeMs(3000)
- *         fallback("shoot")
+ *         onStart { intake.start() }
+ *         onExecute { if (intake.isFull) transitionTo("shoot") }
  *     }
  *     case("shoot") {
- *         onEnter { shooter.fire() }
- *         transition({ shooter.done() }, "intake")
+ *         onStart { shooter.fire() }
+ *         onExecute { if (shooter.done()) transitionToNext() }
  *     }
  * }
  * }</pre>
+ *
+ * Call [transitionTo] and [transitionToNext] only from inside those
+ * blocks (they need the case to be part of a machine, which happens when
+ * the machine is built).
  */
 @FSMMarker
-class CaseDsl internal constructor(val name: String) {
-    internal var enterAction: (() -> Unit)? = null
-    internal var tickAction: (() -> Unit)? = null
-    internal var exitAction: (() -> Unit)? = null
-    internal var minTimeMs: Long = 0
-    internal var maxTimeMs: Long = Long.MAX_VALUE
-    internal val transitions = ArrayList<Pair<() -> Boolean, String?>>()
-    internal var fallbackName: String? = null
-
+class CaseDsl internal constructor(internal val builder: CaseBuilder) {
     /** Runs once when the case becomes active. */
-    fun onEnter(action: () -> Unit) {
-        enterAction = action
+    fun onStart(action: CaseDsl.() -> Unit) {
+        builder.setOnStart(Runnable { action.invoke(this) })
     }
 
     /** Runs every tick while the case is active. */
-    fun onTick(action: () -> Unit) {
-        tickAction = action
+    fun onExecute(action: CaseDsl.() -> Unit) {
+        builder.setOnExecute(Runnable { action.invoke(this) })
     }
 
-    /** Runs once when the case stops being active. */
-    fun onExit(action: () -> Unit) {
-        exitAction = action
+    /** Runs on this case just before the machine leaves it; receives the case being transitioned into (null on stop/finish). */
+    fun onTransition(action: CaseDsl.(Case?) -> Unit) {
+        builder.setOnTransition(Consumer { other -> action.invoke(this, other) })
     }
 
-    /**
-     * A guarded transition to the case named [to]; [to] null advances to
-     * the next case in the machine. Checked in the order added.
-     */
-    fun transition(condition: () -> Boolean, to: String? = null) {
-        transitions.add(condition to to)
+    /** Jumps to the case with this state, applied at the end of the current tick. */
+    fun transitionTo(state: State) {
+        builder.transition(state)
     }
 
-    /** Declarative transitions cannot fire before the case has been active this long. */
-    fun minTimeMs(ms: Long) {
-        minTimeMs = ms
+    /** Jumps to the case with this state name, applied at the end of the current tick. */
+    fun transitionTo(name: String) {
+        builder.transition(State.of(name))
     }
 
-    /** The case is forced to finish after it has been active this long. */
-    fun maxTimeMs(ms: Long) {
-        maxTimeMs = ms
+    /** Jumps to the case with this enum state, applied at the end of the current tick. */
+    fun <E : Enum<E>> transitionTo(state: E) {
+        builder.transition(State.of(state))
     }
 
-    /** Where a [maxTimeMs] expiry goes. */
-    fun fallback(to: String) {
-        fallbackName = to
+    /** Advances to the next case in the machine's list, applied at the end of the current tick. */
+    fun transitionToNext() {
+        builder.transitionToNext()
     }
 }
 
@@ -82,49 +74,43 @@ class CaseDsl internal constructor(val name: String) {
 @FSMMarker
 class KotlinBuilder {
     private val cases = ArrayList<Case>()
-    private val dsls = ArrayList<CaseDsl>()
-    private val byName = HashMap<String, Case>()
-    private var initialName: String? = null
+    private var initialState: State? = null
     private var clock: Supplier<Long> = Supplier { System.nanoTime() }
-    private val listeners = ArrayList<StateMachineListener>()
 
-    /**
-     * Declares a case. The returned [Case] is already built (a [SimpleCase]
-     * from the block's actions); its transitions are wired when the machine
-     * is built. Names must be unique.
-     */
-    fun case(name: String, init: CaseDsl.() -> Unit): Case {
-        if (byName.containsKey(name)) {
-            throw IllegalArgumentException("KotlinBuilder: duplicate case name: $name")
-        }
-        val dsl = CaseDsl(name).apply(init)
-        val c = SimpleCase(
-            name,
-            dsl.enterAction?.let { action -> Runnable { action() } },
-            dsl.tickAction?.let { action -> Runnable { action() } },
-            dsl.exitAction?.let { action -> Runnable { action() } }
-        )
-        cases.add(c)
-        dsls.add(dsl)
-        byName[name] = c
-        return c
+    /** Declares a case for this state. Returns the built case. */
+    fun case(state: State, init: CaseDsl.() -> Unit): Case {
+        val builder = CaseBuilder(state)
+        CaseDsl(builder).init()
+        cases.add(builder)
+        return builder
     }
+
+    /** Declares a case for this state name. Returns the built case. */
+    fun case(name: String, init: CaseDsl.() -> Unit): Case =
+        case(State.of(name), init)
+
+    /** Declares a case for this enum state. Returns the built case. */
+    fun <E : Enum<E>> case(state: E, init: CaseDsl.() -> Unit): Case =
+        case(State.of(state), init)
 
     /** Adds a prebuilt case (built with Java or by subclassing [Case]). */
     fun add(case: Case) {
-        val name = case.name
-        if (name != null) {
-            if (byName.containsKey(name)) {
-                throw IllegalArgumentException("KotlinBuilder: duplicate case name: $name")
-            }
-            byName[name] = case
-        }
         cases.add(case)
     }
 
-    /** The case the machine starts from, by name (defaults to the first case declared). */
+    /** The state the machine starts from (defaults to the first case declared). */
+    fun initial(state: State) {
+        initialState = state
+    }
+
+    /** The state the machine starts from, by name. */
     fun initial(name: String) {
-        initialName = name
+        initialState = State.of(name)
+    }
+
+    /** The state the machine starts from, by enum value. */
+    fun <E : Enum<E>> initial(state: E) {
+        initialState = State.of(state)
     }
 
     /** The nanosecond clock (defaults to `System.nanoTime()`; inject a fake one for tests). */
@@ -132,48 +118,15 @@ class KotlinBuilder {
         clock = supplier
     }
 
-    /** Registers a lifecycle listener. */
-    fun listener(listener: StateMachineListener) {
-        listeners.add(listener)
-    }
-
-    /** Registers a transition listener: called with the case left and the case entered. */
-    fun onTransition(handler: (Case, Case) -> Unit) {
-        listeners.add(object : StateMachineListener {
-            override fun onTransition(machine: StateMachine, from: Case, to: Case) {
-                handler(from, to)
-            }
-        })
-    }
-
     internal fun build(): StateMachine {
-        for ((c, dsl) in cases.zip(dsls)) {
-            for ((condition, targetName) in dsl.transitions) {
-                val target = targetName?.let {
-                    byName[it]
-                        ?: throw IllegalArgumentException("KotlinBuilder: unknown case: $it")
-                }
-                c.addTransition({ condition() }, target)
-            }
-            c.minTimeMs(dsl.minTimeMs)
-            c.maxTimeMs(dsl.maxTimeMs)
-            dsl.fallbackName?.let { name ->
-                c.fallback(
-                    byName[name]
-                        ?: throw IllegalArgumentException("KotlinBuilder: unknown case: $name")
-                )
-            }
-        }
         val ordered = ArrayList(cases)
-        initialName?.let { name ->
-            val initial = byName[name]
-                ?: throw IllegalArgumentException("KotlinBuilder: unknown case: $name")
+        initialState?.let { state ->
+            val initial = ordered.find { it.state == state }
+                ?: throw IllegalArgumentException("KotlinBuilder: no case with state: ${state.name()}")
             ordered.remove(initial)
             ordered.add(0, initial)
         }
-        val machine = StateMachine(clock, *ordered.toTypedArray())
-        listeners.forEach { machine.addListener(it) }
-        return machine
+        return StateMachine(clock, *ordered.toTypedArray())
     }
 }
 
