@@ -111,8 +111,9 @@ blackboard().set("full", true);
 boolean full = blackboard().getIfPresent("full", Boolean.class) == Boolean.TRUE;
 ```
 
-The builders take it too: `JavaBuilder.stateMachine(b -> b.blackboard(board))`
-and `blackboard(board)` in the Kotlin DSL.
+The builders take it too: `StateMachines.JavaBuilder.stateMachine(b -> b.blackboard(board))`
+and `blackboard(board)` in the Kotlin DSL. (The builders live in the `ftc`
+module, under `com.rmsftc.ftcImpl.StateMachines`.)
 
 The machine logs every switch through `Logger` (also from `util`):
 `FSM_STATE_ENTERED` / `FSM_STATE_EXITED` on each switch (with
@@ -121,10 +122,15 @@ cases. Logging is a no-op until a `LogSystem` is attached — see `util`.
 
 ## Builders
 
+The builders live in the `ftc` module, under `com.rmsftc.ftcImpl.StateMachines`
+(and the top-level `com.rmsftc.ftcImpl.stateMachine` function for the Kotlin
+DSL). Or build through `ArchitectureManager.stateMachine(...)`, which manages
+the machine and shares one blackboard with your trees and commands.
+
 Java:
 
 ```java
-StateMachine machine = JavaBuilder.stateMachine(b -> b
+StateMachine machine = StateMachines.JavaBuilder.stateMachine(b -> b
         .addCase(intake)
         .addCase(shoot)
         .initial(State.of("intake")));
@@ -134,14 +140,14 @@ The builder also adds the built-in cases inline: `waitMs(state, millis)`,
 `waitUntil(state, condition)`, `run(state, action)`,
 `instant(state, action)`, `startEnd(state, onStart, onEnd)`,
 `print(state, message)`, and `caseBuilder(state, block)` for a lambda
-case. Every method takes a `Consumer`, like BehaviorTrees' `JavaBuilder`.
+case. Every method takes a `Consumer`, like the behavior-tree `Trees.JavaBuilder`.
 
 Kotlin DSL (same core types, Kotlin-idiomatic: the blocks run with the
 case's DSL as receiver, so transitions are called from inside them).
 Every DSL method also has a `Consumer` overload, and
-`KotlinBuilder.stateMachine(Consumer)` is the Java entry point, so the
+`StateMachines.KotlinBuilder.stateMachine(Consumer)` is the Java entry point, so the
 Kotlin builder is usable from Java too — see
-`src/test/java/com/rmsftc/fsm/examples/`:
+`ftc/src/test/java/com/rmsftc/ftcImpl/fsm/examples/`:
 
 ```kotlin
 val machine = stateMachine {

@@ -24,6 +24,12 @@ android {
             withSourcesJar()
         }
     }
+
+    testOptions {
+        unitTests.all {
+            it.useJUnitPlatform()
+        }
+    }
 }
 
 kotlin {
@@ -52,6 +58,11 @@ dependencies {
     // JUnit 4 for the local unit tests (the template ExampleUnitTest uses
     // org.junit.Test / org.junit.Assert).
     testImplementation(libs.junit)
+    // JUnit 5 for the moved builder tests and the converter/manager tests.
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+    testImplementation("org.junit.platform:junit-platform-suite:1.10.0")
+    // Lets the JUnit 4 tests keep running under the JUnit Platform.
+    testImplementation("org.junit.vintage:junit-vintage-engine:5.10.0")
 }
 
 publishing {

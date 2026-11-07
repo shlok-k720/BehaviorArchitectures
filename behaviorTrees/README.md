@@ -6,7 +6,7 @@ A Java and Kotlin behavior-tree library for FTC robots. The library separates re
 
 | Artifact | Purpose |
 | --- | --- |
-| `behaviorTrees` | Platform-independent behavior-tree nodes and builders. This is the dependency most robot projects need. Shared state and logging live in `util`. |
+| `behaviorTrees` | Platform-independent behavior-tree nodes. This is the dependency most robot projects need. Shared state and logging live in `util`. The builders live in `ftc` (`com.rmsftc.ftcImpl.Trees`). |
 | `ftc` | Android/FTC-facing module that depends on `behaviorTrees` and compiles against the FTC SDK. |
 
 ## Install from JitPack
@@ -46,16 +46,18 @@ Every `BehaviorNode` returns one of three statuses:
 
 Call `tree.tick()` once per OpMode loop. A node runs its start callback once for an activation, its tick callback on every loop while active, and its end callback when it finishes or is invalidated.
 
+The builders live in the `ftc` module, under `com.rmsftc.ftcImpl.Trees` — this artifact holds the nodes only. Or build through `ArchitectureManager.tree(...)`, which manages the tree and shares one blackboard with your machines and commands.
+
 ### Kotlin DSL
 
 ```kotlin
 import com.rmsftc.bttree.NodeStatus
 import com.rmsftc.util.blackboard.Blackboard
-import com.rmsftc.bttree.builders.KotlinBuilder
+import com.rmsftc.ftcImpl.Trees
 
 val blackboard = Blackboard()
 
-val tree = KotlinBuilder.rootTree(blackboard) {
+val tree = Trees.KotlinBuilder.rootTree(blackboard) {
     sequence("score preload") {
         condition("has target") { blackboard.has("target") }
         action(
@@ -78,7 +80,7 @@ tree.tick()
 ```java
 Blackboard blackboard = new Blackboard();
 
-ReactiveSelectorNode tree = JavaBuilder.rootTree(blackboard, root ->
+ReactiveSelectorNode tree = Trees.JavaBuilder.rootTree(blackboard, root ->
     root.sequence("score preload", sequence -> {
         sequence.condition("has target", () -> blackboard.has("target"));
         sequence.action(

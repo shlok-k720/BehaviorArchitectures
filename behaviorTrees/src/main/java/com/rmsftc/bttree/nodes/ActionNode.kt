@@ -5,7 +5,8 @@ import java.util.function.Supplier
 import com.rmsftc.util.blackboard.Blackboard
 import com.rmsftc.bttree.BehaviorNode
 
-class ActionNode(name: String, blackboard: Blackboard, private val start: (() -> Unit)?, private val tick: Supplier<NodeStatus>, private val end: (() -> Unit)?) : BehaviorNode(name, blackboard) {
+/** An action leaf: runs [start] once, [tick] every tick, [end] once when done. Open so converters can wrap other architectures as nodes (see ArchitectureConverter). */
+open class ActionNode(name: String, blackboard: Blackboard, private val start: (() -> Unit)?, private val tick: Supplier<NodeStatus>, private val end: (() -> Unit)?) : BehaviorNode(name, blackboard) {
     override fun onStart() {
         start?.invoke()
     }

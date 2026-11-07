@@ -1,7 +1,7 @@
 package com.rmsftc.bttree.ftc
 
 import com.rmsftc.bttree.NodeStatus
-import com.rmsftc.bttree.builders.JavaBuilder
+import com.rmsftc.ftcImpl.Trees.JavaBuilder
 import java.util.function.Consumer
 import java.util.function.Supplier
 import org.junit.Assert.assertEquals
