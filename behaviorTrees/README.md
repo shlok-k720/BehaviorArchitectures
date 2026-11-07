@@ -6,7 +6,7 @@ A Java and Kotlin behavior-tree library for FTC robots. The library separates re
 
 | Artifact | Purpose |
 | --- | --- |
-| `behaviorTrees` | Platform-independent behavior-tree nodes, builders, blackboard, and logging. This is the dependency most robot projects need. |
+| `behaviorTrees` | Platform-independent behavior-tree nodes and builders. This is the dependency most robot projects need. Shared state and logging live in `util`. |
 | `ftc` | Android/FTC-facing module that depends on `behaviorTrees` and compiles against the FTC SDK. |
 
 ## Install from JitPack
@@ -50,7 +50,7 @@ Call `tree.tick()` once per OpMode loop. A node runs its start callback once for
 
 ```kotlin
 import com.rmsftc.bttree.NodeStatus
-import com.rmsftc.bttree.blackboard.Blackboard
+import com.rmsftc.util.blackboard.Blackboard
 import com.rmsftc.bttree.builders.KotlinBuilder
 
 val blackboard = Blackboard()
@@ -146,7 +146,10 @@ Call `reset()` before reusing a tree when its state should return to never-ticke
 
 ## Blackboard, Callbacks, and Logging
 
-`Blackboard` is typed shared state for tree nodes. It accepts both string and enum keys:
+`Blackboard` and `Logger` live in the `util` module
+(`com.rmsftc.util.blackboard`, `com.rmsftc.util.logger`) and are shared
+with `fsm` and `cmdlib`. `Blackboard` is typed shared state for tree
+nodes. It accepts both string and enum keys:
 
 ```kotlin
 blackboard.set("target", "backdrop")

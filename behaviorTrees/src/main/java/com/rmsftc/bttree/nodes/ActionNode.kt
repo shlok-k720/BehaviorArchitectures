@@ -2,7 +2,7 @@ package com.rmsftc.bttree.nodes
 
 import com.rmsftc.bttree.NodeStatus
 import java.util.function.Supplier
-import com.rmsftc.bttree.blackboard.Blackboard
+import com.rmsftc.util.blackboard.Blackboard
 import com.rmsftc.bttree.BehaviorNode
 
 class ActionNode(name: String, blackboard: Blackboard, private val start: (() -> Unit)?, private val tick: Supplier<NodeStatus>, private val end: (() -> Unit)?) : BehaviorNode(name, blackboard) {

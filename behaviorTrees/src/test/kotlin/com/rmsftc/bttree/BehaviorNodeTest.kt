@@ -1,7 +1,7 @@
 package com.rmsftc.bttree
 
-import com.rmsftc.bttree.blackboard.Blackboard
-import com.rmsftc.bttree.logger.Logger
+import com.rmsftc.util.blackboard.Blackboard
+import com.rmsftc.util.logger.Logger
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull

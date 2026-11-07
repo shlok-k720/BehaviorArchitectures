@@ -2,7 +2,7 @@ package com.rmsftc.bttree.nodes
 
 import com.rmsftc.bttree.BehaviorNode
 import com.rmsftc.bttree.NodeStatus
-import com.rmsftc.bttree.blackboard.Blackboard
+import com.rmsftc.util.blackboard.Blackboard
 
 /**
  * Decorator that ticks its child until it has succeeded [targetCount] times, then

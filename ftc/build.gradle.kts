@@ -37,6 +37,7 @@ dependencies {
     api(project(":fsm"))
     api(project(":cmdlib"))
     api(project(":behaviorTrees"))
+    api(project(":util"))
 
     // Kotlin types appear in the public API, so the stdlib must reach consumers.
     api(kotlin("stdlib"))

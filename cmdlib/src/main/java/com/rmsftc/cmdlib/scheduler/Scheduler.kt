@@ -3,8 +3,11 @@ package com.rmsftc.cmdlib.scheduler
 import com.rmsftc.cmdlib.BlockedBehavior
 import com.rmsftc.cmdlib.InterruptionBehavior
 import com.rmsftc.cmdlib.ScheduleResult
+import com.rmsftc.cmdlib.cmd.Command
 import com.rmsftc.cmdlib.cmd.ICommand
 import com.rmsftc.cmdlib.trigger.Trigger
+import com.rmsftc.util.blackboard.Blackboard
+import com.rmsftc.util.logger.Logger
 import java.util.ArrayDeque
 import java.util.function.BooleanSupplier
 import java.util.function.Supplier
@@ -36,7 +39,8 @@ import java.util.function.Supplier
  */
 class Scheduler @JvmOverloads constructor(
     private val clock: Supplier<Long> = Supplier { System.nanoTime() },
-    private val isOpModeActive: BooleanSupplier = BooleanSupplier { true }
+    private val isOpModeActive: BooleanSupplier = BooleanSupplier { true },
+    private val blackboard: Blackboard = Blackboard()
 ) : IScheduler {
 
     private val running = LinkedHashSet<ICommand>()
@@ -97,6 +101,7 @@ class Scheduler @JvmOverloads constructor(
         if (running.remove(command)) {
             releaseRequirements(command)
             command.invalidate()
+            Logger.log(Logger.CMD_CANCELLED, "name=${command.name}")
             listeners.forEach { it.onCancelled(command) }
         } else if (queued.remove(command)) {
             // Never started: drop it without ever calling end().
@@ -128,6 +133,9 @@ class Scheduler @JvmOverloads constructor(
         triggers.clear()
     }
 
+    /** The shared [Blackboard]: attached to every command this scheduler runs. */
+    fun blackboard(): Blackboard = blackboard
+
     /** The clock this scheduler was built with (triggers use it). */
     fun clock(): Supplier<Long> = clock
 
@@ -155,10 +163,12 @@ class Scheduler @JvmOverloads constructor(
     }
 
     private fun start(command: ICommand) {
+        (command as? Command)?.attachBlackboard(blackboard)
         running.add(command)
         for (requirement in command.requirements) {
             requirements[requirement] = command
         }
+        Logger.log(Logger.CMD_SCHEDULED, "name=${command.name}")
         listeners.forEach { it.onScheduled(command) }
     }
 
@@ -167,6 +177,7 @@ class Scheduler @JvmOverloads constructor(
         running.remove(command)
         releaseRequirements(command)
         command.invalidate()
+        Logger.log(Logger.CMD_INTERRUPTED, "name=${command.name}")
         listeners.forEach { it.onInterrupted(command) }
     }
 
@@ -174,6 +185,7 @@ class Scheduler @JvmOverloads constructor(
     private fun finish(command: ICommand) {
         running.remove(command)
         releaseRequirements(command)
+        Logger.log(Logger.CMD_FINISHED, "name=${command.name}")
         listeners.forEach { it.onFinished(command) }
     }
 

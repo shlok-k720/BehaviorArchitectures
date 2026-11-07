@@ -3,6 +3,7 @@ package com.rmsftc.cmdlib.cmd.decorators
 import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.Status
 import com.rmsftc.cmdlib.cmd.Command
+import com.rmsftc.util.blackboard.Blackboard
 import com.rmsftc.cmdlib.cmd.ICommand
 import com.rmsftc.cmdlib.scheduler.ComposedCommands
 
@@ -25,6 +26,12 @@ abstract class WrapperCommand(protected val wrapped: ICommand) : Command() {
         blockedBehavior = wrapped.blockedBehavior
         runsWhenDisabled = wrapped.runsWhenDisabled
         name = wrapped.name
+    }
+
+    /** Passes the scheduler's board down to the wrapped command, so it shares it. */
+    override fun attachBlackboard(board: Blackboard) {
+        super.attachBlackboard(board)
+        (wrapped as? Command)?.attachBlackboard(board)
     }
 
     /** Drives the wrapped command directly, so its own lifecycle applies. */

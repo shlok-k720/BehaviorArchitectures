@@ -4,6 +4,7 @@ import com.rmsftc.fsm.Case
 import com.rmsftc.fsm.CaseBuilder
 import com.rmsftc.fsm.State
 import com.rmsftc.fsm.StateMachine
+import com.rmsftc.util.blackboard.Blackboard
 import java.util.function.BiConsumer
 import java.util.function.Consumer
 import java.util.function.Supplier
@@ -98,6 +99,7 @@ class KotlinBuilder {
 
     private val cases = ArrayList<Case>()
     private var initialState: State? = null
+    private var blackboard: Blackboard = Blackboard()
     private var clock: Supplier<Long> = Supplier { System.nanoTime() }
 
     /** Declares a case for this state. Returns the built case. */
@@ -168,6 +170,11 @@ class KotlinBuilder {
         initialState = State.of(state)
     }
 
+    /** The shared [Blackboard] cases read and write (defaults to a fresh one). */
+    fun blackboard(blackboard: Blackboard) {
+        this.blackboard = blackboard
+    }
+
     /** The nanosecond clock (defaults to `System.nanoTime()`; inject a fake one for tests). */
     fun clock(supplier: Supplier<Long>) {
         clock = supplier
@@ -181,7 +188,7 @@ class KotlinBuilder {
             ordered.remove(initial)
             ordered.add(0, initial)
         }
-        return StateMachine(clock, *ordered.toTypedArray())
+        return StateMachine(blackboard, clock, *ordered.toTypedArray())
     }
 }
 

@@ -3,6 +3,7 @@ package com.rmsftc.cmdlib.cmd.decorators
 import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.Status
 import com.rmsftc.cmdlib.cmd.Command
+import com.rmsftc.util.blackboard.Blackboard
 import com.rmsftc.cmdlib.scheduler.ComposedCommands
 
 /**
@@ -18,6 +19,12 @@ class RepeatCommand(private val child: Command) : Command() {
         interruptionBehavior = child.interruptionBehavior
         blockedBehavior = child.blockedBehavior
         runsWhenDisabled = child.runsWhenDisabled
+    }
+
+    /** Passes the scheduler's board down to the child, so it shares it. */
+    override fun attachBlackboard(board: Blackboard) {
+        super.attachBlackboard(board)
+        child.attachBlackboard(board)
     }
 
     override fun start() {}

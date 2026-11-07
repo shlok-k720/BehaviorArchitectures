@@ -3,6 +3,7 @@ package com.rmsftc.cmdlib.cmd.selectors
 import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.Status
 import com.rmsftc.cmdlib.cmd.Command
+import com.rmsftc.util.blackboard.Blackboard
 import com.rmsftc.cmdlib.cmd.ICommand
 import com.rmsftc.cmdlib.scheduler.ComposedCommands
 import java.util.function.Supplier
@@ -25,6 +26,12 @@ class DeferredCommand(
         addRequirements(*tokens)
     }
 
+    /** Passes the scheduler's board down to the built inner command, when there is one yet. */
+    override fun attachBlackboard(board: Blackboard) {
+        super.attachBlackboard(board)
+        (inner as? Command)?.attachBlackboard(board)
+    }
+
     override fun start() {
         val built = supplier.get()
         val undeclared = built.requirements - requirements
@@ -35,6 +42,7 @@ class DeferredCommand(
             )
         }
         ComposedCommands.markComposed(built, "DeferredCommand")
+        (built as? Command)?.attachBlackboard(blackboard())
         inner = built
         lastStatus = Status.RUNNING
     }

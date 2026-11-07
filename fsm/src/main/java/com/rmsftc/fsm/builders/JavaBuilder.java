@@ -10,6 +10,7 @@ import com.rmsftc.fsm.cases.RunCase;
 import com.rmsftc.fsm.cases.StartEndCase;
 import com.rmsftc.fsm.cases.WaitCase;
 import com.rmsftc.fsm.cases.WaitUntilCase;
+import com.rmsftc.util.blackboard.Blackboard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ import java.util.function.Supplier;
 public class JavaBuilder {
     private final List<Case> cases = new ArrayList<>();
     private State initial;
+    private Blackboard blackboard = new Blackboard();
     private Supplier<Long> clock = System::nanoTime;
 
     /** Single entry point: configures a builder and returns the built machine. */
@@ -54,6 +56,12 @@ public class JavaBuilder {
     /** The state the machine starts from (defaults to the first case added). */
     public JavaBuilder initial(State state) {
         initial = state;
+        return this;
+    }
+
+    /** The shared {@link Blackboard} cases read and write (defaults to a fresh one). */
+    public JavaBuilder blackboard(Blackboard blackboard) {
+        this.blackboard = blackboard;
         return this;
     }
 
@@ -124,6 +132,6 @@ public class JavaBuilder {
             ordered.remove(first);
             ordered.add(0, first);
         }
-        return new StateMachine(clock, ordered.toArray(new Case[0]));
+        return new StateMachine(blackboard, clock, ordered.toArray(new Case[0]));
     }
 }

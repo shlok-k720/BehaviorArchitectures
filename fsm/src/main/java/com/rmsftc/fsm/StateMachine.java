@@ -1,5 +1,8 @@
 package com.rmsftc.fsm;
 
+import com.rmsftc.util.blackboard.Blackboard;
+import com.rmsftc.util.logger.Logger;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -32,22 +35,37 @@ import java.util.function.Supplier;
 public class StateMachine {
     private final List<Case> cases = new ArrayList<>();
     private final Map<State, Case> byState = new LinkedHashMap<>();
+    private final Blackboard blackboard;
     private final Supplier<Long> clock;
     private int index = 0;
     private boolean running = false;
     private State pendingState;
     private boolean pendingAdvance;
 
-    /** A machine over {@code cases} in order, using {@code System.nanoTime()}. */
+    /** A machine over {@code cases} in order, using {@code System.nanoTime()} and its own {@link Blackboard}. */
     public StateMachine(Case... cases) {
-        this(System::nanoTime, cases);
+        this(new Blackboard(), System::nanoTime, cases);
     }
 
-    /** A machine over {@code cases} in order, with an injected nanosecond clock (for tests). */
+    /** A machine over {@code cases} in order, with an injected nanosecond clock (for tests) and its own {@link Blackboard}. */
     public StateMachine(Supplier<Long> clock, Case... cases) {
+        this(new Blackboard(), clock, cases);
+    }
+
+    /** A machine over {@code cases} in order, sharing this {@link Blackboard} with the cases (see {@link Case#blackboard()}). */
+    public StateMachine(Blackboard blackboard, Case... cases) {
+        this(blackboard, System::nanoTime, cases);
+    }
+
+    /** A machine over {@code cases} in order, sharing this {@link Blackboard} and using this clock. */
+    public StateMachine(Blackboard blackboard, Supplier<Long> clock, Case... cases) {
+        if (blackboard == null) {
+            throw new IllegalArgumentException("StateMachine: blackboard cannot be null");
+        }
         if (clock == null) {
             throw new IllegalArgumentException("StateMachine: clock cannot be null");
         }
+        this.blackboard = blackboard;
         this.clock = clock;
         for (Case c : cases) {
             addCase(c);
@@ -72,6 +90,11 @@ public class StateMachine {
     /** The cases in order (unmodifiable view). */
     public List<Case> getCases() {
         return Collections.unmodifiableList(cases);
+    }
+
+    /** The shared {@link Blackboard}: cases read and write it through {@link Case#blackboard()}. */
+    public Blackboard blackboard() {
+        return blackboard;
     }
 
     /** The nanosecond clock cases use for timing (see {@link Case#nowNanos()}). */
@@ -106,6 +129,7 @@ public class StateMachine {
             pendingState = null;
             pendingAdvance = false;
             cases.get(index).onStart();
+            Logger.log(Logger.FSM_STATE_ENTERED, "state=" + cases.get(index).getState().name());
         }
     }
 
@@ -162,6 +186,7 @@ public class StateMachine {
         if (!running) {
             return;
         }
+        Logger.log(Logger.FSM_STATE_EXITED, "state=" + cases.get(index).getState().name());
         cases.get(index).onTransition(null);
         running = false;
         pendingState = null;
@@ -196,17 +221,22 @@ public class StateMachine {
 
     private void switchTo(Case target) {
         Case from = cases.get(index);
+        Logger.log(Logger.FSM_STATE_EXITED,
+                "state=" + from.getState().name() + ",to=" + target.getState().name());
         from.onTransition(target);
         index = cases.indexOf(target);
         cases.get(index).onStart();
+        Logger.log(Logger.FSM_STATE_ENTERED, "state=" + cases.get(index).getState().name());
     }
 
     private void advance() {
         if (index + 1 < cases.size()) {
             switchTo(cases.get(index + 1));
         } else {
+            Logger.log(Logger.FSM_STATE_EXITED, "state=" + cases.get(index).getState().name());
             cases.get(index).onTransition(null);
             running = false;
+            Logger.log(Logger.FSM_FINISHED, "state=" + cases.get(index).getState().name());
         }
     }
 }

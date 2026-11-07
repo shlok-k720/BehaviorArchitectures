@@ -2,7 +2,7 @@ package com.rmsftc.bttree.nodes
 
 import com.rmsftc.bttree.NodeStatus
 import com.rmsftc.bttree.TestBehaviorNode
-import com.rmsftc.bttree.blackboard.Blackboard
+import com.rmsftc.util.blackboard.Blackboard
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test

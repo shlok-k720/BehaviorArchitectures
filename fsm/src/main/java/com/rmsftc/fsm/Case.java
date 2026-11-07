@@ -1,5 +1,7 @@
 package com.rmsftc.fsm;
 
+import com.rmsftc.util.blackboard.Blackboard;
+
 /**
  * One case of a switch/case state machine: a state that runs while it is
  * active. The machine ticks the current case once per loop
@@ -73,6 +75,12 @@ public abstract class Case {
     /** The machine this case belongs to (null until the case is added to a machine). */
     protected final StateMachine machine() {
         return machine;
+    }
+
+    /** The machine's shared {@link Blackboard}: the cases' shared data, like BehaviorTrees' nodes use it. */
+    protected final Blackboard blackboard() {
+        requireMachine();
+        return machine.blackboard();
     }
 
     /** Current time in nanoseconds, from the machine's clock. */

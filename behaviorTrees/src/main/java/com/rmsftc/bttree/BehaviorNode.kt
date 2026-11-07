@@ -1,7 +1,7 @@
 package com.rmsftc.bttree
 
-import com.rmsftc.bttree.blackboard.Blackboard
-import com.rmsftc.bttree.logger.Logger
+import com.rmsftc.util.blackboard.Blackboard
+import com.rmsftc.util.logger.Logger
 
 abstract class BehaviorNode(val name: String, protected val blackboard: Blackboard) {
     var status: NodeStatus? = null

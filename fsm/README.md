@@ -98,6 +98,27 @@ in `com.rmsftc.fsm.cases`:
 - `StartEndCase(state, onStart, onEnd)` — start action on entry, end action on exit.
 - `PrintCase(state, message)` — prints once (to `System.out`), then advances (or jumps).
 
+## Blackboard and logging
+
+Cases share data through a `Blackboard` (from `util`), the same one
+behavior-tree nodes and commands use. The machine owns one — pass it in
+or let the machine make its own — and cases reach it with `blackboard()`:
+
+```java
+StateMachine machine = new StateMachine(board, intake, shoot);
+// inside a case:
+blackboard().set("full", true);
+boolean full = blackboard().getIfPresent("full", Boolean.class) == Boolean.TRUE;
+```
+
+The builders take it too: `JavaBuilder.stateMachine(b -> b.blackboard(board))`
+and `blackboard(board)` in the Kotlin DSL.
+
+The machine logs every switch through `Logger` (also from `util`):
+`FSM_STATE_ENTERED` / `FSM_STATE_EXITED` on each switch (with
+`state=` and `to=` in the data), and `FSM_FINISHED` when it runs out of
+cases. Logging is a no-op until a `LogSystem` is attached — see `util`.
+
 ## Builders
 
 Java:

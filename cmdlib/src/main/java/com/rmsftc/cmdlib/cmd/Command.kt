@@ -16,6 +16,7 @@ import com.rmsftc.cmdlib.cmd.groups.ParallelRaceGroup
 import com.rmsftc.cmdlib.cmd.groups.SequentialCommandGroup
 import com.rmsftc.cmdlib.cmd.selectors.ConditionalCommand
 import com.rmsftc.cmdlib.scheduler.IScheduler
+import com.rmsftc.util.blackboard.Blackboard
 import java.util.function.BooleanSupplier
 import java.util.function.Consumer
 
@@ -35,6 +36,7 @@ import java.util.function.Consumer
  */
 abstract class Command : ICommand {
     private var isStarted = false
+    private var board: Blackboard = Blackboard()
     private val requirementSet = LinkedHashSet<Any>()
 
     override val requirements: Set<Any>
@@ -44,6 +46,20 @@ abstract class Command : ICommand {
     override var blockedBehavior: BlockedBehavior = BlockedBehavior.CANCEL
     override var runsWhenDisabled: Boolean = false
     override var name: String = javaClass.simpleName
+
+    /**
+     * The shared blackboard: set by the scheduler when this command is
+     * scheduled (see [attachBlackboard]), so commands can share data the
+     * way BehaviorTrees nodes do. Unscheduled commands keep their own
+     * private board. Composites override [attachBlackboard] to pass the
+     * board down to their children.
+     */
+    protected fun blackboard(): Blackboard = board
+
+    /** Called by the scheduler (same module) when this command is scheduled. */
+    internal open fun attachBlackboard(board: Blackboard) {
+        this.board = board
+    }
 
     /** Declares the requirement tokens this command needs. Call from
      * the constructor. */

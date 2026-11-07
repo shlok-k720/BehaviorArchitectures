@@ -2,7 +2,7 @@ package com.rmsftc.bttree.nodes
 
 import com.rmsftc.bttree.BehaviorNode
 import com.rmsftc.bttree.NodeStatus
-import com.rmsftc.bttree.blackboard.Blackboard
+import com.rmsftc.util.blackboard.Blackboard
 
 /**
  * Decorator that inverts its child's terminal result: SUCCESS becomes FAILURE and

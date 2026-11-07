@@ -82,6 +82,34 @@ newcomer). Scheduling returns a typed `ScheduleResult`, so a dropped schedule
 is visible instead of silent. A command whose `blockedBehavior` is `QUEUE`
 is parked and retried every tick.
 
+## Blackboard and logging
+
+Commands share data through a `Blackboard` (from `util`), the same one
+behavior-tree nodes and fsm cases use. Each scheduler owns one — pass it
+in (`new Scheduler(clock, active, board)`, or `new QueueScheduler(board)`)
+or let the scheduler make its own — and attaches it to every command it
+schedules, including the children of groups, selectors, and decorators.
+Commands reach it with `blackboard()`:
+
+```kotlin
+class ScoreCommand : Command() {
+    override fun loop() {
+        if (blackboard().getIfPresent("mode", String::class.java) == "score") {
+            // ...
+        }
+    }
+    // start(), status(), end() as usual
+}
+```
+
+A command that is never scheduled keeps its own private board.
+
+The schedulers log every lifecycle event through `Logger` (also from
+`util`): `CMD_SCHEDULED` when a command starts running, `CMD_FINISHED`
+when it ends naturally, `CMD_CANCELLED` when it is cancelled, and
+`CMD_INTERRUPTED` when a higher-priority command ends it. Logging is a
+no-op until a `LogSystem` is attached — see `util`.
+
 ## Groups and decorators
 
 - **Groups:** `SequentialCommandGroup` (one at a time, same-tick advance),

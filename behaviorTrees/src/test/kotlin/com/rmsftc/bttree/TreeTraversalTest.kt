@@ -1,6 +1,6 @@
 package com.rmsftc.bttree
 
-import com.rmsftc.bttree.blackboard.Blackboard
+import com.rmsftc.util.blackboard.Blackboard
 import com.rmsftc.bttree.nodes.ConditionNode
 import com.rmsftc.bttree.nodes.InverterNode
 import com.rmsftc.bttree.nodes.SequenceNode

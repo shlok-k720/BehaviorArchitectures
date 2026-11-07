@@ -4,6 +4,7 @@ import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.InterruptionBehavior
 import com.rmsftc.cmdlib.Status
 import com.rmsftc.cmdlib.cmd.Command
+import com.rmsftc.util.blackboard.Blackboard
 import com.rmsftc.cmdlib.cmd.ICommand
 import com.rmsftc.cmdlib.scheduler.ComposedCommands
 import java.util.function.BooleanSupplier
@@ -31,6 +32,12 @@ class ConditionalCommand(
                 onFalse.interruptionBehavior == InterruptionBehavior.CANCEL_SELF
             ) InterruptionBehavior.CANCEL_SELF else InterruptionBehavior.CANCEL_INCOMING
         runsWhenDisabled = onTrue.runsWhenDisabled && onFalse.runsWhenDisabled
+    }
+
+    /** Passes the scheduler's board down to the children, so they share it. */
+    override fun attachBlackboard(board: Blackboard) {
+        super.attachBlackboard(board)
+        listOf(onTrue, onFalse).forEach { (it as? Command)?.attachBlackboard(board) }
     }
 
     override fun start() {
