@@ -14,11 +14,13 @@ public class Logger {
     public static final String FSM_STATE_ENTERED = "com.rmsftc.fsm: State Entered";
     public static final String FSM_STATE_EXITED = "com.rmsftc.fsm: State Exited";
     public static final String FSM_FINISHED = "com.rmsftc.fsm: Finished";
+    public static final String FSM_PRINT = "com.rmsftc.fsm: PrintCase";
 
     public static final String CMD_SCHEDULED = "com.rmsftc.cmdlib: Command Scheduled";
     public static final String CMD_FINISHED = "com.rmsftc.cmdlib: Command Finished";
     public static final String CMD_CANCELLED = "com.rmsftc.cmdlib: Command Cancelled";
     public static final String CMD_INTERRUPTED = "com.rmsftc.cmdlib: Command Interrupted";
+    public static final String CMD_PRINT = "com.rmsftc.cmdlib: PrintCommand";
 
     private static final Set<LogSystem> loggers = new CopyOnWriteArraySet<>();
 
