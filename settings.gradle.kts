@@ -12,6 +12,7 @@ dependencyResolutionManagement {
         mavenCentral()
         maven { url = uri("https://jitpack.io") } // FTCUtils
         maven { url = uri("https://maven.brott.dev/") } // FTC Dashboard, if used
+        maven { url = uri("https://repo.dairy.foundation/releases") } // frozenmilk Sloth
     }
 }
 
