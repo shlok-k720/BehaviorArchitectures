@@ -1,6 +1,8 @@
 package com.rmsftc.fsm
 
-import java.util.function.Supplier
+import com.rmsftc.utils.Clock
+import com.rmsftc.utils.math.units.NumericalValue
+import com.rmsftc.utils.math.units.basic.TimeUnit
 
 /** States for the tests, as an enum (string form = the constant name). */
 enum class TestStates {
@@ -55,8 +57,8 @@ class FakeClock {
         nanos += ms * 1_000_000L
     }
 
-    fun supplier(): Supplier<Long> = Supplier { nanos }
+    fun clock(): Clock = Clock { NumericalValue(nanos.toDouble(), TimeUnit.NANOSECOND) }
 }
 
 fun machine(vararg cases: Case, clock: FakeClock = FakeClock()): Pair<StateMachine, FakeClock> =
-    StateMachine(clock.supplier(), *cases) to clock
+    StateMachine(clock.clock(), *cases) to clock

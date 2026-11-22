@@ -3,7 +3,7 @@ package com.rmsftc.cmdlib.trigger
 import com.rmsftc.cmdlib.cmd.ICommand
 import com.rmsftc.cmdlib.scheduler.IScheduler
 import java.util.function.BooleanSupplier
-import java.util.function.Supplier
+import com.rmsftc.utils.Clock
 
 /**
  * A boolean condition with edge-tracked bindings (WPILib v2's `Trigger`).
@@ -22,7 +22,7 @@ import java.util.function.Supplier
 class Trigger(
     private val condition: BooleanSupplier,
     private val scheduler: IScheduler = IScheduler.instance,
-    private val clock: Supplier<Long> = Supplier { System.nanoTime() }
+    private val clock: Clock = Clock.SYSTEM
 ): BooleanSupplier {
     private class Binding(
         val onRising: Runnable?,
@@ -138,10 +138,10 @@ class Trigger(
     fun debounce(millis: Long, type: DebounceType): Trigger {
         val nanos = millis * 1_000_000L
         var lastInput = condition.asBoolean
-        var lastChangeNanos = clock.get()
+        var lastChangeNanos = clock.nowNanos()
         var output = lastInput
         val debounced = BooleanSupplier {
-            val now = clock.get()
+            val now = clock.nowNanos()
             val input = condition.asBoolean
             if (input != lastInput) {
                 lastInput = input

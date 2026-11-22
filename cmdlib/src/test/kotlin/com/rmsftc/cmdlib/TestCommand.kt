@@ -1,6 +1,9 @@
 package com.rmsftc.cmdlib
 
 import com.rmsftc.cmdlib.cmd.Command
+import com.rmsftc.utils.Clock
+import com.rmsftc.utils.math.units.NumericalValue
+import com.rmsftc.utils.math.units.basic.TimeUnit
 
 /**
  * A scripted command for tests (the `TestBehaviorNode` of cmdlib): returns
@@ -76,8 +79,8 @@ class RunForeverCommand(vararg tokens: Any) : Command() {
 }
 
 /** A nanosecond clock tests can advance by hand (no sleeping). */
-class FakeClock(var nanos: Long = 0) : java.util.function.Supplier<Long> {
-    override fun get(): Long = nanos
+class FakeClock(var nanos: Long = 0) : Clock {
+    override fun get(): NumericalValue<TimeUnit> = NumericalValue(nanos.toDouble(), TimeUnit.NANOSECOND)
     fun advance(durationNanos: Long) {
         nanos += durationNanos
     }

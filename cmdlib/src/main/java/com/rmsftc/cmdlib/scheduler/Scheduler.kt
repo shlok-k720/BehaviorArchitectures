@@ -12,7 +12,7 @@ import com.rmsftc.utils.blackboard.Blackboard
 import com.rmsftc.utils.logger.Logger
 import java.util.ArrayDeque
 import java.util.function.BooleanSupplier
-import java.util.function.Supplier
+import com.rmsftc.utils.Clock
 
 /**
  * The scheduler. Runs commands in parallel, one tick per [execute] call:
@@ -40,7 +40,7 @@ import java.util.function.Supplier
  *   run when disabled are cancelled while it is false. The OpMode sets this.
  */
 class Scheduler @JvmOverloads constructor(
-    private val clock: Supplier<Long> = Supplier { System.nanoTime() },
+    private val clock: Clock = Clock.SYSTEM,
     private val isOpModeActive: BooleanSupplier = BooleanSupplier { true },
     private val blackboard: Blackboard = Blackboard()
 ) : IScheduler {
@@ -139,7 +139,7 @@ class Scheduler @JvmOverloads constructor(
     fun blackboard(): Blackboard = blackboard
 
     /** The clock this scheduler was built with (triggers use it). */
-    fun clock(): Supplier<Long> = clock
+    fun clock(): Clock = clock
 
     /** All commands currently running (snapshot). */
     fun runningCommands(): Set<ICommand> = running.toSet()

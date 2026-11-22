@@ -41,6 +41,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry
 import java.util.function.BiConsumer
 import java.util.function.BooleanSupplier
 import java.util.function.Consumer
+import com.rmsftc.utils.Clock
 import java.util.function.Supplier
 
 /**
@@ -79,7 +80,7 @@ import java.util.function.Supplier
  * command as a case, ...), see [ArchitectureConverter].
  */
 class ArchitectureManager @JvmOverloads constructor(
-    private val clock: Supplier<Long> = Supplier { System.nanoTime() },
+    private val clock: Clock = Clock.SYSTEM,
     private val isOpModeActive: BooleanSupplier = BooleanSupplier { true }
 ) {
     private var blackboard = Blackboard()
@@ -761,7 +762,7 @@ object StateMachines {
         private val cases = ArrayList<Case>()
         private var initialState: State? = null
         private var blackboard: Blackboard = Blackboard()
-        private var clock: Supplier<Long> = Supplier { System.nanoTime() }
+        private var clock: Clock = Clock.SYSTEM
 
         /** Declares a case for this state. Returns the built case. */
         fun case(state: State, init: CaseDsl.() -> Unit): Case {
@@ -837,8 +838,8 @@ object StateMachines {
         }
 
         /** The nanosecond clock (defaults to `System.nanoTime()`; inject a fake one for tests). */
-        fun clock(supplier: Supplier<Long>) {
-            clock = supplier
+        fun clock(clock: Clock) {
+            this.clock = clock
         }
 
         internal fun build(): StateMachine {
@@ -871,7 +872,7 @@ object StateMachines {
         private val cases = ArrayList<Case>()
         private var initial: State? = null
         private var blackboard: Blackboard = Blackboard()
-        private var clock: Supplier<Long> = Supplier { System.nanoTime() }
+        private var clock: Clock = Clock.SYSTEM
 
         companion object {
             /** Single entry point: configures a builder and returns the built machine. */
@@ -902,7 +903,7 @@ object StateMachines {
         }
 
         /** The nanosecond clock (defaults to `System.nanoTime()`; inject a fake one for tests). */
-        fun clock(clock: Supplier<Long>): JavaBuilder {
+        fun clock(clock: Clock): JavaBuilder {
             this.clock = clock
             return this
         }

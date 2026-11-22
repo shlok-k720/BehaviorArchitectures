@@ -35,7 +35,7 @@ class JavaWithJavaBuilderTest {
                         .setOnExecute(() -> {
                             if (shot.get()) shoot.transitionToNext();
                         }))
-                .clock(clock.supplier()));
+                .clock(clock.clock()));
 
         machine.start();
         assertEquals(State.of("intake"), machine.getCurrentState());

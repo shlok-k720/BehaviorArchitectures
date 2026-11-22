@@ -6,6 +6,7 @@ import com.rmsftc.cmdlib.cmd.RunCommand
 import com.rmsftc.cmdlib.scheduler.QueueScheduler
 import com.rmsftc.cmdlib.scheduler.Scheduler
 import com.rmsftc.cmdlib.scheduler.SchedulerEventListener
+import com.rmsftc.utils.Clock
 import java.util.function.BooleanSupplier
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -16,7 +17,7 @@ import org.junit.jupiter.api.Test
 
 class SchedulerTest {
     private fun scheduler(active: Boolean = true): Scheduler =
-        Scheduler(clock = java.util.function.Supplier { System.nanoTime() },
+        Scheduler(clock = Clock.SYSTEM,
             isOpModeActive = BooleanSupplier { active })
 
     @Test

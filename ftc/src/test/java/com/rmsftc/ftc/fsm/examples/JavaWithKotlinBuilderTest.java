@@ -48,7 +48,7 @@ class JavaWithKotlinBuilderTest {
             b.addCase(State.of("intake"), intakeBlock);
             b.add(new WaitCase(State.of("wait"), 100));
             b.addCase(State.of("shoot"), shootBlock);
-            b.clock(clock.supplier());
+            b.clock(clock.clock());
         });
 
         machine.start();

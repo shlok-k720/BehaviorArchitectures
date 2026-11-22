@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
+import com.rmsftc.utils.Clock;
 
 /**
  * Runs a switch/case state machine: an ordered list of {@link Case}s, one
@@ -36,7 +36,7 @@ public class StateMachine {
     private final List<Case> cases = new ArrayList<>();
     private final Map<State, Case> byState = new LinkedHashMap<>();
     private final Blackboard blackboard;
-    private final Supplier<Long> clock;
+    private final Clock clock;
     private int index = 0;
     private boolean running = false;
     private State pendingState;
@@ -44,21 +44,21 @@ public class StateMachine {
 
     /** A machine over {@code cases} in order, using {@code System.nanoTime()} and its own {@link Blackboard}. */
     public StateMachine(Case... cases) {
-        this(new Blackboard(), System::nanoTime, cases);
+        this(new Blackboard(), Clock.SYSTEM, cases);
     }
 
     /** A machine over {@code cases} in order, with an injected nanosecond clock (for tests) and its own {@link Blackboard}. */
-    public StateMachine(Supplier<Long> clock, Case... cases) {
+    public StateMachine(Clock clock, Case... cases) {
         this(new Blackboard(), clock, cases);
     }
 
     /** A machine over {@code cases} in order, sharing this {@link Blackboard} with the cases (see {@link Case#blackboard()}). */
     public StateMachine(Blackboard blackboard, Case... cases) {
-        this(blackboard, System::nanoTime, cases);
+        this(blackboard, Clock.SYSTEM, cases);
     }
 
     /** A machine over {@code cases} in order, sharing this {@link Blackboard} and using this clock. */
-    public StateMachine(Blackboard blackboard, Supplier<Long> clock, Case... cases) {
+    public StateMachine(Blackboard blackboard, Clock clock, Case... cases) {
         if (blackboard == null) {
             throw new IllegalArgumentException("StateMachine: blackboard cannot be null");
         }
@@ -98,7 +98,7 @@ public class StateMachine {
     }
 
     /** The nanosecond clock cases use for timing (see {@link Case#nowNanos()}). */
-    public Supplier<Long> getClock() {
+    public Clock getClock() {
         return clock;
     }
 

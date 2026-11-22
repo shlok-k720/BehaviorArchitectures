@@ -86,7 +86,7 @@ public abstract class Case {
     /** Current time in nanoseconds, from the machine's clock. */
     protected final long nowNanos() {
         requireMachine();
-        return machine.getClock().get();
+        return machine.getClock().nowNanos();
     }
 
     /** Creates a new Case Builder **/

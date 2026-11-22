@@ -4,7 +4,9 @@ import com.rmsftc.fsm.Case
 import com.rmsftc.fsm.State
 import com.rmsftc.fsm.StateMachine
 
-import java.util.function.Supplier
+import com.rmsftc.utils.Clock
+import com.rmsftc.utils.math.units.NumericalValue
+import com.rmsftc.utils.math.units.basic.TimeUnit
 
 /**
  * Test helpers copied from the fsm module's tests (fsm/src/test/.../TestCase.kt):
@@ -65,8 +67,8 @@ class FakeClock {
         nanos += ms * 1_000_000L
     }
 
-    fun supplier(): Supplier<Long> = Supplier { nanos }
+    fun clock(): Clock = Clock { NumericalValue(nanos.toDouble(), TimeUnit.NANOSECOND) }
 }
 
 fun machine(vararg cases: Case, clock: FakeClock = FakeClock()): Pair<StateMachine, FakeClock> =
-    StateMachine(clock.supplier(), *cases) to clock
+    StateMachine(clock.clock(), *cases) to clock

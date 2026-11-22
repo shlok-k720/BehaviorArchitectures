@@ -2,11 +2,11 @@ package com.rmsftc.cmdlib.cmd
 
 import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.Status
-import java.util.function.Supplier
+import com.rmsftc.utils.Clock
 
 /**
  * Finishes after [durationMillis] milliseconds have elapsed. The clock is a
- * nanosecond [Supplier] so tests can drive it with a fake clock instead of
+ * nanosecond [Clock] so tests can drive it with a fake clock instead of
  * sleeping; it defaults to `System.nanoTime()`.
  *
  * Plain milliseconds, not `java.time.Duration`: `Duration` is API 26+ on
@@ -14,20 +14,20 @@ import java.util.function.Supplier
  */
 class WaitCommand @JvmOverloads constructor(
     durationMillis: Long,
-    private val clock: Supplier<Long> = Supplier { System.nanoTime() }
+    private val clock: Clock = Clock.SYSTEM
 ) : Command() {
     private val durationNanos: Long = durationMillis * 1_000_000L
 
     private var startNanos: Long = 0
 
     override fun start() {
-        startNanos = clock.get()
+        startNanos = clock.nowNanos()
     }
 
     override fun loop() {}
 
     override fun status(): Status =
-        Status.of(clock.get() - startNanos < durationNanos)
+        Status.of(clock.nowNanos() - startNanos < durationNanos)
 
     override fun end(condition: EndCondition) {}
 }

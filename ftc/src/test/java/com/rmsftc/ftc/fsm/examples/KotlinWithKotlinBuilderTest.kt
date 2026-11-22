@@ -29,7 +29,7 @@ class KotlinWithKotlinBuilderTest {
             case("shoot") {
                 onExecute { if (shot) transitionToNext() }
             }
-            clock(clock.supplier())
+            clock(clock.clock())
         }
 
         machine.start()

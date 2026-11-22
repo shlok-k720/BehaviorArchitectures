@@ -53,7 +53,7 @@ class BuildersTest {
                 .run(State.of("run")) { ran++ }
                 .startEnd(State.of("hold"), { started++ }, { ended++ })
                 .print(State.of("print"), "done")
-                .clock(clock.supplier())
+                .clock(clock.clock())
         }
         // The run case never finishes on its own, so drive it manually:
         // instant -> wait -> run (stays), then force past it.
@@ -108,7 +108,7 @@ class BuildersTest {
                 onExecute { transitionToNext() }
             }
             case(State.of("done")) {}
-            clock(clock.supplier())
+            clock(clock.clock())
         }
         m.start()
         assertEquals(State.of("intake"), m.getCurrentState())
