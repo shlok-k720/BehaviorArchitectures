@@ -82,8 +82,17 @@ public class ArchitecturalOpMode extends LinearOpMode {
         onInit();
         build(manager);
         waitForStart();
+        runLoop(this::opModeIsActive);
+    }
+
+    /**
+     * The loop half of {@link #runOpMode}: starts everything, ticks until
+     * {@code active} goes false, then stops. Split out (package-private)
+     * so unit tests can drive the lifecycle without a real OpMode start.
+     */
+    void runLoop(java.util.function.BooleanSupplier active) {
         manager.startAll();
-        while (opModeIsActive()) {
+        while (active.getAsBoolean()) {
             manager.tickAll();
             onLoop();
             telemetry.update();
