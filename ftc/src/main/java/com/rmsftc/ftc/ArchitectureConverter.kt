@@ -27,17 +27,17 @@ class StateMachineCommand(val machine: StateMachine, name: String = "StateMachin
         this.name = name
     }
 
-    override fun start() {
+    override fun start(): Unit {
         machine.start()
     }
 
-    override fun loop() {
+    override fun loop(): Unit {
         machine.update()
     }
 
     override fun status(): Status = Status.of(!machine.isFinished())
 
-    override fun end(endCondition: EndCondition) {
+    override fun end(endCondition: EndCondition): Unit {
         if (endCondition == EndCondition.INTERRUPTED) {
             machine.stop()
         }
@@ -60,17 +60,17 @@ class TreeCommand(val root: BehaviorNode, name: String = "TreeCommand") : Comman
         this.name = name
     }
 
-    override fun start() {
+    override fun start(): Unit {
         // Nothing to do: the first tick() starts the tree.
     }
 
-    override fun loop() {
+    override fun loop(): Unit {
         lastStatus = root.tick()
     }
 
     override fun status(): Status = Status.of(lastStatus == NodeStatus.RUNNING)
 
-    override fun end(endCondition: EndCondition) {
+    override fun end(endCondition: EndCondition): Unit {
         if (endCondition == EndCondition.INTERRUPTED) {
             root.invalidate()
         }
