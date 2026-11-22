@@ -1,6 +1,6 @@
-package com.rmsftc.ftcImpl.trees
+package com.rmsftc.ftc.trees
 
-import com.rmsftc.ftcImpl.Trees.KotlinBuilder
+import com.rmsftc.ftc.Trees.KotlinBuilder
 
 import com.rmsftc.bttree.NodeStatus
 import com.rmsftc.util.blackboard.Blackboard

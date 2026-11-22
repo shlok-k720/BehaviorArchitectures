@@ -1,8 +1,8 @@
-package com.rmsftc.ftcImpl.fsm.examples
+package com.rmsftc.ftc.fsm.examples
 
-import com.rmsftc.ftcImpl.fsm.FakeClock
+import com.rmsftc.ftc.fsm.FakeClock
 import com.rmsftc.fsm.State
-import com.rmsftc.ftcImpl.stateMachine
+import com.rmsftc.ftc.stateMachine
 import com.rmsftc.fsm.cases.WaitCase
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue

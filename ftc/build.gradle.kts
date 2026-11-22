@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.rmsftc.ftcImpl"
+    namespace = "com.rmsftc.ftc"
     compileSdk = 30
 
     defaultConfig {

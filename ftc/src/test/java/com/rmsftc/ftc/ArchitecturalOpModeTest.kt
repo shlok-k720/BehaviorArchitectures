@@ -1,9 +1,9 @@
-package com.rmsftc.ftcImpl
+package com.rmsftc.ftc
 
 import com.rmsftc.bttree.NodeStatus
 import com.rmsftc.fsm.State
 import com.rmsftc.fsm.StateMachine
-import com.rmsftc.ftcImpl.fsm.TestCase
+import com.rmsftc.ftc.fsm.TestCase
 import org.firstinspires.ftc.robotcore.external.RecordingTelemetry
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue

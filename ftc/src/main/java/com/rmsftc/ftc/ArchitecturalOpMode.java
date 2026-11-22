@@ -1,4 +1,4 @@
-package com.rmsftc.ftcImpl;
+package com.rmsftc.ftc;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 

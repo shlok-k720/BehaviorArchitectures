@@ -1,4 +1,4 @@
-package com.rmsftc.ftcImpl.fsm
+package com.rmsftc.ftc.fsm
 
 import com.rmsftc.fsm.Case
 import com.rmsftc.fsm.State

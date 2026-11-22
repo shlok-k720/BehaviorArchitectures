@@ -1,10 +1,10 @@
-package com.rmsftc.ftcImpl.fsm.examples;
+package com.rmsftc.ftc.fsm.examples;
 
-import com.rmsftc.ftcImpl.fsm.FakeClock;
+import com.rmsftc.ftc.fsm.FakeClock;
 import com.rmsftc.fsm.State;
 import com.rmsftc.fsm.StateMachine;
-import com.rmsftc.ftcImpl.StateMachines.CaseDsl;
-import com.rmsftc.ftcImpl.StateMachines.KotlinBuilder;
+import com.rmsftc.ftc.StateMachines.CaseDsl;
+import com.rmsftc.ftc.StateMachines.KotlinBuilder;
 import com.rmsftc.fsm.cases.WaitCase;
 
 import org.junit.jupiter.api.Test;

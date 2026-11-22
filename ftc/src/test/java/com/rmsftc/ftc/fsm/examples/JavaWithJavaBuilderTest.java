@@ -1,9 +1,9 @@
-package com.rmsftc.ftcImpl.fsm.examples;
+package com.rmsftc.ftc.fsm.examples;
 
-import com.rmsftc.ftcImpl.fsm.FakeClock;
+import com.rmsftc.ftc.fsm.FakeClock;
 import com.rmsftc.fsm.State;
 import com.rmsftc.fsm.StateMachine;
-import com.rmsftc.ftcImpl.StateMachines.JavaBuilder;
+import com.rmsftc.ftc.StateMachines.JavaBuilder;
 
 import org.junit.jupiter.api.Test;
 

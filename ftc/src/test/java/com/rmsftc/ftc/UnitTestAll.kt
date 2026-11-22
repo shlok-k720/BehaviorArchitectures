@@ -1,4 +1,4 @@
-package com.rmsftc.ftcImpl
+package com.rmsftc.ftc
 
 import org.junit.platform.suite.api.SelectPackages
 import org.junit.platform.suite.api.Suite

@@ -1,4 +1,4 @@
-package com.rmsftc.ftcImpl
+package com.rmsftc.ftc
 
 import com.rmsftc.cmdlib.InterruptionBehavior
 import com.rmsftc.cmdlib.cmd.Commands

@@ -1,10 +1,10 @@
-package com.rmsftc.ftcImpl.fsm
+package com.rmsftc.ftc.fsm
 
 import com.rmsftc.fsm.Case
 import com.rmsftc.fsm.State
-import com.rmsftc.ftcImpl.StateMachines.JavaBuilder
-import com.rmsftc.ftcImpl.StateMachines.KotlinBuilder
-import com.rmsftc.ftcImpl.stateMachine
+import com.rmsftc.ftc.StateMachines.JavaBuilder
+import com.rmsftc.ftc.StateMachines.KotlinBuilder
+import com.rmsftc.ftc.stateMachine
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue

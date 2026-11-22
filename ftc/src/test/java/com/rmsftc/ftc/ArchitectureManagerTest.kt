@@ -1,4 +1,4 @@
-package com.rmsftc.ftcImpl
+package com.rmsftc.ftc
 
 import com.rmsftc.bttree.NodeStatus
 import com.rmsftc.cmdlib.EndCondition
@@ -6,7 +6,7 @@ import com.rmsftc.cmdlib.Status
 import com.rmsftc.cmdlib.cmd.Command
 import com.rmsftc.cmdlib.cmd.Commands
 import com.rmsftc.fsm.State
-import com.rmsftc.ftcImpl.fsm.TestCase
+import com.rmsftc.ftc.fsm.TestCase
 import com.rmsftc.util.blackboard.Blackboard
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotSame
