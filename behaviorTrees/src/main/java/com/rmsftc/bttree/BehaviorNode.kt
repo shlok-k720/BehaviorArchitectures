@@ -1,7 +1,7 @@
 package com.rmsftc.bttree
 
-import com.rmsftc.util.blackboard.Blackboard
-import com.rmsftc.util.logger.Logger
+import com.rmsftc.utils.blackboard.Blackboard
+import com.rmsftc.utils.logger.Logger
 
 abstract class BehaviorNode(val name: String, protected val blackboard: Blackboard) {
     var status: NodeStatus? = null
@@ -20,16 +20,16 @@ abstract class BehaviorNode(val name: String, protected val blackboard: Blackboa
             onStart()
             started = true
             status = NodeStatus.RUNNING
-            logLifecycleEvent(Logger.NODE_STARTED)
+            logLifecycleEvent(Captions.NODE_STARTED)
         }
         status = onTick()
         if (status != NodeStatus.RUNNING) {
             onEnd()
             started = false
         }
-        logLifecycleEvent(Logger.NODE_TICKED)
+        logLifecycleEvent(Captions.NODE_TICKED)
         if (status != NodeStatus.RUNNING) {
-            logLifecycleEvent(Logger.NODE_FINISHED)
+            logLifecycleEvent(Captions.NODE_FINISHED)
         }
         return status!!
     }
@@ -80,7 +80,7 @@ abstract class BehaviorNode(val name: String, protected val blackboard: Blackboa
         status = NodeStatus.FAILURE
         onEnd()
         started = false
-        logLifecycleEvent(Logger.NODE_INVALIDATED)
+        logLifecycleEvent(Captions.NODE_INVALIDATED)
     }
 
     /**
@@ -93,7 +93,7 @@ abstract class BehaviorNode(val name: String, protected val blackboard: Blackboa
     open fun reset() {
         if (started) invalidate()
         status = null
-        logLifecycleEvent(Logger.NODE_RESET)
+        logLifecycleEvent(Captions.NODE_RESET)
     }
 
     private fun logLifecycleEvent(caption: String) {

@@ -16,7 +16,7 @@ import com.rmsftc.cmdlib.cmd.groups.ParallelRaceGroup
 import com.rmsftc.cmdlib.cmd.groups.SequentialCommandGroup
 import com.rmsftc.cmdlib.cmd.selectors.ConditionalCommand
 import com.rmsftc.cmdlib.scheduler.IScheduler
-import com.rmsftc.util.blackboard.Blackboard
+import com.rmsftc.utils.blackboard.Blackboard
 import java.util.function.BooleanSupplier
 import java.util.function.Consumer
 

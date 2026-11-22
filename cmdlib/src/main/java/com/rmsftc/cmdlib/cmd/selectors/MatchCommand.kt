@@ -4,7 +4,7 @@ import com.rmsftc.cmdlib.EndCondition
 import com.rmsftc.cmdlib.InterruptionBehavior
 import com.rmsftc.cmdlib.Status
 import com.rmsftc.cmdlib.cmd.Command
-import com.rmsftc.util.blackboard.Blackboard
+import com.rmsftc.utils.blackboard.Blackboard
 import com.rmsftc.cmdlib.cmd.ICommand
 import com.rmsftc.cmdlib.scheduler.ComposedCommands
 import java.util.EnumMap

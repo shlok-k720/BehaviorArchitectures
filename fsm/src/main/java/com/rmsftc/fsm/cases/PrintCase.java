@@ -1,8 +1,10 @@
 package com.rmsftc.fsm.cases;
 
+import com.rmsftc.fsm.Captions;
+
 import com.rmsftc.fsm.Case;
 import com.rmsftc.fsm.State;
-import com.rmsftc.util.logger.Logger;
+import com.rmsftc.utils.logger.Logger;
 
 /**
  * Prints a message once, then moves on — the {@code Case} mirror of
@@ -33,7 +35,7 @@ public class PrintCase extends Case {
     @Override
     public void onStart() {
         System.out.println(message);
-        Logger.log(Logger.FSM_PRINT, "message=" + message);
+        Logger.log(Captions.FSM_PRINT, "message=" + message);
         if (target != null) {
             transition(target);
         } else {

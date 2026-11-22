@@ -1,7 +1,7 @@
 package com.rmsftc.fsm;
 
-import com.rmsftc.util.blackboard.Blackboard;
-import com.rmsftc.util.logger.Logger;
+import com.rmsftc.utils.blackboard.Blackboard;
+import com.rmsftc.utils.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -129,7 +129,7 @@ public class StateMachine {
             pendingState = null;
             pendingAdvance = false;
             cases.get(index).onStart();
-            Logger.log(Logger.FSM_STATE_ENTERED, "state=" + cases.get(index).getState().name());
+            Logger.log(Captions.FSM_STATE_ENTERED, "state=" + cases.get(index).getState().name());
         }
     }
 
@@ -186,7 +186,7 @@ public class StateMachine {
         if (!running) {
             return;
         }
-        Logger.log(Logger.FSM_STATE_EXITED, "state=" + cases.get(index).getState().name());
+        Logger.log(Captions.FSM_STATE_EXITED, "state=" + cases.get(index).getState().name());
         cases.get(index).onTransition(null);
         running = false;
         pendingState = null;
@@ -221,22 +221,22 @@ public class StateMachine {
 
     private void switchTo(Case target) {
         Case from = cases.get(index);
-        Logger.log(Logger.FSM_STATE_EXITED,
+        Logger.log(Captions.FSM_STATE_EXITED,
                 "state=" + from.getState().name() + ",to=" + target.getState().name());
         from.onTransition(target);
         index = cases.indexOf(target);
         cases.get(index).onStart();
-        Logger.log(Logger.FSM_STATE_ENTERED, "state=" + cases.get(index).getState().name());
+        Logger.log(Captions.FSM_STATE_ENTERED, "state=" + cases.get(index).getState().name());
     }
 
     private void advance() {
         if (index + 1 < cases.size()) {
             switchTo(cases.get(index + 1));
         } else {
-            Logger.log(Logger.FSM_STATE_EXITED, "state=" + cases.get(index).getState().name());
+            Logger.log(Captions.FSM_STATE_EXITED, "state=" + cases.get(index).getState().name());
             cases.get(index).onTransition(null);
             running = false;
-            Logger.log(Logger.FSM_FINISHED, "state=" + cases.get(index).getState().name());
+            Logger.log(Captions.FSM_FINISHED, "state=" + cases.get(index).getState().name());
         }
     }
 }

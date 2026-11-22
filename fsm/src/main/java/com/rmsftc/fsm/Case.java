@@ -1,6 +1,6 @@
 package com.rmsftc.fsm;
 
-import com.rmsftc.util.blackboard.Blackboard;
+import com.rmsftc.utils.blackboard.Blackboard;
 
 /**
  * One case of a switch/case state machine: a state that runs while it is

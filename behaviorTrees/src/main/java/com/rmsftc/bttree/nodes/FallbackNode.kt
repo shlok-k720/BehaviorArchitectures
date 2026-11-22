@@ -2,7 +2,7 @@ package com.rmsftc.bttree.nodes
 
 import com.rmsftc.bttree.BehaviorNode
 import com.rmsftc.bttree.NodeStatus
-import com.rmsftc.util.blackboard.Blackboard
+import com.rmsftc.utils.blackboard.Blackboard
 
 /**
  * A selector with memory: ticks children in priority order and returns the first

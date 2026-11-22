@@ -3,7 +3,7 @@ package com.rmsftc.ftc.trees
 import com.rmsftc.ftc.Trees.JavaBuilder
 
 import com.rmsftc.bttree.NodeStatus
-import com.rmsftc.util.blackboard.Blackboard
+import com.rmsftc.utils.blackboard.Blackboard
 import com.rmsftc.bttree.nodes.ParallelPolicy
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

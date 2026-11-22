@@ -1,8 +1,8 @@
 package com.rmsftc.fsm
 
-import com.rmsftc.util.blackboard.Blackboard
-import com.rmsftc.util.logger.LogSystem
-import com.rmsftc.util.logger.Logger
+import com.rmsftc.utils.blackboard.Blackboard
+import com.rmsftc.utils.logger.LogSystem
+import com.rmsftc.utils.logger.Logger
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -77,26 +77,26 @@ class BlackboardAndLoggingTest {
         val m = StateMachine(a, b)
         m.start()
         assertEquals(
-            listOf(Logger.FSM_STATE_ENTERED to "state=a"),
+            listOf(Captions.FSM_STATE_ENTERED to "state=a"),
             events
         )
         m.update() // a -> b
         assertEquals(
             listOf(
-                Logger.FSM_STATE_ENTERED to "state=a",
-                Logger.FSM_STATE_EXITED to "state=a,to=b",
-                Logger.FSM_STATE_ENTERED to "state=b"
+                Captions.FSM_STATE_ENTERED to "state=a",
+                Captions.FSM_STATE_EXITED to "state=a,to=b",
+                Captions.FSM_STATE_ENTERED to "state=b"
             ),
             events
         )
         m.update() // b finishes
         assertEquals(
             listOf(
-                Logger.FSM_STATE_ENTERED to "state=a",
-                Logger.FSM_STATE_EXITED to "state=a,to=b",
-                Logger.FSM_STATE_ENTERED to "state=b",
-                Logger.FSM_STATE_EXITED to "state=b",
-                Logger.FSM_FINISHED to "state=b"
+                Captions.FSM_STATE_ENTERED to "state=a",
+                Captions.FSM_STATE_EXITED to "state=a,to=b",
+                Captions.FSM_STATE_ENTERED to "state=b",
+                Captions.FSM_STATE_EXITED to "state=b",
+                Captions.FSM_FINISHED to "state=b"
             ),
             events
         )
@@ -111,8 +111,8 @@ class BlackboardAndLoggingTest {
         m.stop()
         assertEquals(
             listOf(
-                Logger.FSM_STATE_ENTERED to "state=a",
-                Logger.FSM_STATE_EXITED to "state=a"
+                Captions.FSM_STATE_ENTERED to "state=a",
+                Captions.FSM_STATE_EXITED to "state=a"
             ),
             events
         )

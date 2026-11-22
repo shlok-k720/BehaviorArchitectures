@@ -1,6 +1,6 @@
 package com.rmsftc.bttree
 
-import com.rmsftc.util.blackboard.Blackboard
+import com.rmsftc.utils.blackboard.Blackboard
 
 internal class TestBehaviorNode(
     name: String,

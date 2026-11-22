@@ -6,6 +6,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The `util` module is gone, replaced by [FTCUtils](https://github.com/shlok-k720/FTCUtils)
+  (`com.github.shlok-k720.FTCUtils:core:v0.1.0` for `behaviorTrees`/`cmdlib`/`fsm`,
+  `...:ftc:v0.1.0` for `ftc`, which brings core + telemetry transitively). The
+  `Blackboard` and `Logger`/`LogSystem` now live in `com.rmsftc.utils.*` with the
+  same API; imports changed from `com.rmsftc.util.*` to `com.rmsftc.utils.*`.
+  The log caption constants moved out of `Logger` into a per-module `Captions`
+  class (`com.rmsftc.bttree.Captions`, `com.rmsftc.fsm.Captions`,
+  `com.rmsftc.cmdlib.Captions`) with the same names and values.
+
+### Added
+
+- `ftc`: `ArchitectureDaemon` — optional daemon-driven ticking. Register an
+  `ArchitectureManager` once and FTCUtils' daemon loop ticks it (alongside e.g.
+  `ClockManager`); unregistered, it is a no-op and OpModes keep ticking manually
+  as before.
+
 ## [0.2.0] - 2026-11-07
 
 First tagged release of BehaviorArchitectures (tag `v0.2.0`).

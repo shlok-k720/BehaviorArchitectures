@@ -34,9 +34,9 @@ import com.rmsftc.fsm.cases.RunCase
 import com.rmsftc.fsm.cases.StartEndCase
 import com.rmsftc.fsm.cases.WaitCase
 import com.rmsftc.fsm.cases.WaitUntilCase
-import com.rmsftc.util.blackboard.Blackboard
-import com.rmsftc.util.logger.LogSystem
-import com.rmsftc.util.logger.Logger
+import com.rmsftc.utils.blackboard.Blackboard
+import com.rmsftc.utils.logger.LogSystem
+import com.rmsftc.utils.logger.Logger
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import java.util.function.BiConsumer
 import java.util.function.BooleanSupplier

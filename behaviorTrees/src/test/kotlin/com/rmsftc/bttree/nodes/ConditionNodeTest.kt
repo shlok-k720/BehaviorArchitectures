@@ -1,7 +1,7 @@
 package com.rmsftc.bttree.nodes
 
 import com.rmsftc.bttree.NodeStatus
-import com.rmsftc.util.blackboard.Blackboard
+import com.rmsftc.utils.blackboard.Blackboard
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 

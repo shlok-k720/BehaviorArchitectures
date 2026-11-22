@@ -1,9 +1,13 @@
 [versions]
 junit = "4.13.2"
 ftc = "12.0.0"
+ftcutils = "v0.1.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+ftcutils-core = { group = "com.github.shlok-k720.FTCUtils", name = "core", version.ref = "ftcutils" }
+ftcutils-telemetry = { group = "com.github.shlok-k720.FTCUtils", name = "telemetry", version.ref = "ftcutils" }
+ftcutils-ftc = { group = "com.github.shlok-k720.FTCUtils", name = "ftc", version.ref = "ftcutils" }
 ftc-robotcore = { group = "org.firstinspires.ftc", name = "RobotCore", version.ref = "ftc" }
 ftc-hardware = { group = "org.firstinspires.ftc", name = "Hardware", version.ref = "ftc" }
 ftc-ftccommon = { group = "org.firstinspires.ftc", name = "FtcCommon", version.ref = "ftc" }

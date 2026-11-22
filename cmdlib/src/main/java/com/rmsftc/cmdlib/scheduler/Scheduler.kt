@@ -1,13 +1,15 @@
 package com.rmsftc.cmdlib.scheduler
 
+import com.rmsftc.cmdlib.Captions
+
 import com.rmsftc.cmdlib.BlockedBehavior
 import com.rmsftc.cmdlib.InterruptionBehavior
 import com.rmsftc.cmdlib.ScheduleResult
 import com.rmsftc.cmdlib.cmd.Command
 import com.rmsftc.cmdlib.cmd.ICommand
 import com.rmsftc.cmdlib.trigger.Trigger
-import com.rmsftc.util.blackboard.Blackboard
-import com.rmsftc.util.logger.Logger
+import com.rmsftc.utils.blackboard.Blackboard
+import com.rmsftc.utils.logger.Logger
 import java.util.ArrayDeque
 import java.util.function.BooleanSupplier
 import java.util.function.Supplier
@@ -101,7 +103,7 @@ class Scheduler @JvmOverloads constructor(
         if (running.remove(command)) {
             releaseRequirements(command)
             command.invalidate()
-            Logger.log(Logger.CMD_CANCELLED, "name=${command.name}")
+            Logger.log(Captions.CMD_CANCELLED, "name=${command.name}")
             listeners.forEach { it.onCancelled(command) }
         } else if (queued.remove(command)) {
             // Never started: drop it without ever calling end().
@@ -168,7 +170,7 @@ class Scheduler @JvmOverloads constructor(
         for (requirement in command.requirements) {
             requirements[requirement] = command
         }
-        Logger.log(Logger.CMD_SCHEDULED, "name=${command.name}")
+        Logger.log(Captions.CMD_SCHEDULED, "name=${command.name}")
         listeners.forEach { it.onScheduled(command) }
     }
 
@@ -177,7 +179,7 @@ class Scheduler @JvmOverloads constructor(
         running.remove(command)
         releaseRequirements(command)
         command.invalidate()
-        Logger.log(Logger.CMD_INTERRUPTED, "name=${command.name}")
+        Logger.log(Captions.CMD_INTERRUPTED, "name=${command.name}")
         listeners.forEach { it.onInterrupted(command) }
     }
 
@@ -185,7 +187,7 @@ class Scheduler @JvmOverloads constructor(
     private fun finish(command: ICommand) {
         running.remove(command)
         releaseRequirements(command)
-        Logger.log(Logger.CMD_FINISHED, "name=${command.name}")
+        Logger.log(Captions.CMD_FINISHED, "name=${command.name}")
         listeners.forEach { it.onFinished(command) }
     }
 

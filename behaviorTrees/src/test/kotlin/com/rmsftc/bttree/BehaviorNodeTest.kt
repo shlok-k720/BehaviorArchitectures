@@ -1,7 +1,7 @@
 package com.rmsftc.bttree
 
-import com.rmsftc.util.blackboard.Blackboard
-import com.rmsftc.util.logger.Logger
+import com.rmsftc.utils.blackboard.Blackboard
+import com.rmsftc.utils.logger.Logger
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -58,7 +58,7 @@ class BehaviorNodeTest {
         node.writeLog()
 
         assertEquals(
-            listOf(Logger.NODE_STARTED, Logger.NODE_TICKED, Logger.NODE_FINISHED, "com.rmsftc.bttree: Manual Node Log"),
+            listOf(Captions.NODE_STARTED, Captions.NODE_TICKED, Captions.NODE_FINISHED, "com.rmsftc.bttree: Manual Node Log"),
             events.map { it.first }
         )
         assertEquals("name=logged,type=,status=SUCCESS", events[1].second)

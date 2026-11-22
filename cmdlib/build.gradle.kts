@@ -22,7 +22,7 @@ dependencies {
     // Kotlin types appear in the public API (Command, Trigger), so the
     // stdlib must be visible to consumers too. kotlin("stdlib") follows the
     // plugin version.
-    api(project(":util"))
+    api(libs.ftcutils.core)
 
     api(kotlin("stdlib"))
 

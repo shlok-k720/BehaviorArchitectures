@@ -2,7 +2,7 @@ package com.rmsftc.bttree.nodes
 
 import com.rmsftc.bttree.NodeStatus
 import java.util.function.Supplier
-import com.rmsftc.util.blackboard.Blackboard
+import com.rmsftc.utils.blackboard.Blackboard
 import com.rmsftc.bttree.BehaviorNode
 
 /** An action leaf: runs [start] once, [tick] every tick, [end] once when done. Open so converters can wrap other architectures as nodes (see ArchitectureConverter). */

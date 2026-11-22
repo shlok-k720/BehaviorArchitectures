@@ -8,7 +8,7 @@ import com.rmsftc.cmdlib.cmd.Commands
 import com.rmsftc.fsm.State
 import com.rmsftc.fsm.StateMachine
 import com.rmsftc.ftc.fsm.TestCase
-import com.rmsftc.util.blackboard.Blackboard
+import com.rmsftc.utils.blackboard.Blackboard
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertThrows

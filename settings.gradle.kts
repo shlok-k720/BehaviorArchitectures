@@ -10,6 +10,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://jitpack.io") } // FTCUtils
         maven { url = uri("https://maven.brott.dev/") } // FTC Dashboard, if used
     }
 }
@@ -20,4 +21,3 @@ include(":ftc")
 include(":behaviorTrees")
 include(":cmdlib")
 include(":fsm")
-include(":util")

@@ -4,9 +4,9 @@ import com.rmsftc.cmdlib.cmd.Command
 import com.rmsftc.cmdlib.cmd.groups.SequentialCommandGroup
 import com.rmsftc.cmdlib.scheduler.QueueScheduler
 import com.rmsftc.cmdlib.scheduler.Scheduler
-import com.rmsftc.util.blackboard.Blackboard
-import com.rmsftc.util.logger.LogSystem
-import com.rmsftc.util.logger.Logger
+import com.rmsftc.utils.blackboard.Blackboard
+import com.rmsftc.utils.logger.LogSystem
+import com.rmsftc.utils.logger.Logger
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
@@ -101,15 +101,15 @@ class BlackboardAndLoggingTest {
         instant.name = "instant"
         s.schedule(instant)
         s.execute()
-        assertTrue(events.contains(Logger.CMD_SCHEDULED to "name=instant"))
-        assertTrue(events.contains(Logger.CMD_FINISHED to "name=instant"))
+        assertTrue(events.contains(Captions.CMD_SCHEDULED to "name=instant"))
+        assertTrue(events.contains(Captions.CMD_FINISHED to "name=instant"))
 
         val forever = RunForeverCommand("arm")
         forever.name = "forever"
         s.schedule(forever)
         s.execute()
         s.cancel(forever)
-        assertTrue(events.contains(Logger.CMD_CANCELLED to "name=forever"))
+        assertTrue(events.contains(Captions.CMD_CANCELLED to "name=forever"))
 
         val holder = RunForeverCommand("arm")
         holder.name = "holder"
@@ -118,8 +118,8 @@ class BlackboardAndLoggingTest {
         interrupter.name = "interrupter"
         interrupter.priority = 10
         s.schedule(interrupter)
-        assertTrue(events.contains(Logger.CMD_INTERRUPTED to "name=holder"))
-        assertTrue(events.contains(Logger.CMD_SCHEDULED to "name=interrupter"))
+        assertTrue(events.contains(Captions.CMD_INTERRUPTED to "name=holder"))
+        assertTrue(events.contains(Captions.CMD_SCHEDULED to "name=interrupter"))
     }
 
     @Test
@@ -131,8 +131,8 @@ class BlackboardAndLoggingTest {
         s.schedule(cmd)
         s.execute()
         assertEquals(board, cmd.sawBoard)
-        assertTrue(events.contains(Logger.CMD_SCHEDULED to "name=queued"))
-        assertTrue(events.contains(Logger.CMD_FINISHED to "name=queued"))
+        assertTrue(events.contains(Captions.CMD_SCHEDULED to "name=queued"))
+        assertTrue(events.contains(Captions.CMD_FINISHED to "name=queued"))
     }
 
     @Test

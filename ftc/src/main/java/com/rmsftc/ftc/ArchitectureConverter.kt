@@ -10,7 +10,7 @@ import com.rmsftc.cmdlib.cmd.ICommand
 import com.rmsftc.fsm.Case
 import com.rmsftc.fsm.State
 import com.rmsftc.fsm.StateMachine
-import com.rmsftc.util.blackboard.Blackboard
+import com.rmsftc.utils.blackboard.Blackboard
 import java.util.function.Supplier
 
 /**

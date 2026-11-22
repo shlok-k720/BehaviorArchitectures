@@ -1,10 +1,12 @@
 package com.rmsftc.cmdlib.scheduler
 
+import com.rmsftc.cmdlib.Captions
+
 import com.rmsftc.cmdlib.ScheduleResult
 import com.rmsftc.cmdlib.cmd.Command
 import com.rmsftc.cmdlib.cmd.ICommand
-import com.rmsftc.util.blackboard.Blackboard
-import com.rmsftc.util.logger.Logger
+import com.rmsftc.utils.blackboard.Blackboard
+import com.rmsftc.utils.logger.Logger
 import java.util.ArrayDeque
 import java.util.Queue
 
@@ -29,7 +31,7 @@ class QueueScheduler(private val blackboard: Blackboard = Blackboard()) : ISched
         }
         (command as? Command)?.attachBlackboard(blackboard)
         commandQueue.add(command)
-        Logger.log(Logger.CMD_SCHEDULED, "name=${command.name}")
+        Logger.log(Captions.CMD_SCHEDULED, "name=${command.name}")
         return ScheduleResult.QUEUED
     }
 
@@ -38,7 +40,7 @@ class QueueScheduler(private val blackboard: Blackboard = Blackboard()) : ISched
         val status = command.execute()
         if (!status.isRunning()) {
             commandQueue.remove()
-            Logger.log(Logger.CMD_FINISHED, "name=${command.name}")
+            Logger.log(Captions.CMD_FINISHED, "name=${command.name}")
         }
     }
 
@@ -48,7 +50,7 @@ class QueueScheduler(private val blackboard: Blackboard = Blackboard()) : ISched
         val wasQueued = commandQueue.remove(command)
         command.invalidate()
         if (wasQueued) {
-            Logger.log(Logger.CMD_CANCELLED, "name=${command.name}")
+            Logger.log(Captions.CMD_CANCELLED, "name=${command.name}")
         }
     }
 
