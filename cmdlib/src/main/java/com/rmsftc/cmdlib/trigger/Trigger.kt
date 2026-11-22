@@ -23,7 +23,7 @@ class Trigger(
     private val condition: BooleanSupplier,
     private val scheduler: IScheduler = IScheduler.instance,
     private val clock: Supplier<Long> = Supplier { System.nanoTime() }
-) {
+): BooleanSupplier {
     private class Binding(
         val onRising: Runnable?,
         val onFalling: Runnable?
@@ -33,7 +33,7 @@ class Trigger(
     private val bindings = ArrayList<Binding>()
 
     /** The condition's current value. */
-    fun getAsBoolean(): Boolean = condition.asBoolean
+    override fun getAsBoolean(): Boolean = condition.asBoolean
 
     /** Schedules [command] when the condition goes false → true. */
     fun onTrue(command: ICommand): Trigger {
