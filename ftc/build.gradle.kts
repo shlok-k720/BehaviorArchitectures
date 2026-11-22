@@ -53,6 +53,15 @@ dependencies {
     compileOnly(libs.bundles.ftc)
     testCompileOnly(libs.bundles.ftc)
 
+    // FTCUtils' published classes reference these in their signatures
+    // (DaemonManager.DaemonFinder implements Sinister's Scanner; core's
+    // Pose/Vector/DriveVector extend Pedro types) but FTCUtils declares
+    // them runtime/compileOnly, so they are not on this module's compile
+    // classpath by default. Without them the Kotlin FIR checker crashes
+    // ("source must not be null") on the unresolvable supertypes.
+    compileOnly("dev.frozenmilk.sinister:Sloth:0.3.2")
+    compileOnly("com.pedropathing:core:3.0.2")
+
     // Optional: uncomment if you wire up FTC Dashboard graphing in the OpModes.
     // compileOnly("com.acmerobotics.dashboard:dashboard:0.4.16")
 
