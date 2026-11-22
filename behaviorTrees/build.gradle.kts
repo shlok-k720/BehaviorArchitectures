@@ -27,8 +27,8 @@ dependencies {
     api(kotlin("stdlib"))
 
     testImplementation(libs.junit)
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
-    testImplementation("org.junit.platform:junit-platform-suite:1.10.0")
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.platform.suite)
 }
 
 tasks.test {

@@ -1,7 +1,7 @@
 plugins {
-    id("com.android.library") version "8.7.0" apply false
-    kotlin("android") version "2.1.20" apply false
-    kotlin("jvm") version "2.1.20" apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.jvm) apply false
 }
 
 allprojects {

@@ -65,8 +65,8 @@ dependencies {
     // them runtime/compileOnly, so they are not on this module's compile
     // classpath by default. Without them the Kotlin FIR checker crashes
     // ("source must not be null") on the unresolvable supertypes.
-    compileOnly("dev.frozenmilk.sinister:Sloth:0.3.2")
-    compileOnly("com.pedropathing:core:3.0.2")
+    compileOnly(libs.sloth)
+    compileOnly(libs.pedropathing.core)
 
     // Optional: uncomment if you wire up FTC Dashboard graphing in the OpModes.
     // compileOnly("com.acmerobotics.dashboard:dashboard:0.4.16")
@@ -75,10 +75,10 @@ dependencies {
     // org.junit.Test / org.junit.Assert).
     testImplementation(libs.junit)
     // JUnit 5 for the moved builder tests and the converter/manager tests.
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
-    testImplementation("org.junit.platform:junit-platform-suite:1.10.0")
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.platform.suite)
     // Lets the JUnit 4 tests keep running under the JUnit Platform.
-    testImplementation("org.junit.vintage:junit-vintage-engine:5.10.0")
+    testImplementation(libs.junit.vintage.engine)
 }
 
 publishing {

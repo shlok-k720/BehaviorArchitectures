@@ -4,5 +4,5 @@ import org.junit.platform.suite.api.SelectPackages
 import org.junit.platform.suite.api.Suite
 
 @Suite
-@SelectPackages("com.rmsftc.ftcImpl")
+@SelectPackages("com.rmsftc.ftc")
 class UnitTestAll

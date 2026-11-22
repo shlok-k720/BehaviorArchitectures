@@ -1,19 +1,32 @@
 [versions]
+agp = "8.7.0"
+kotlin = "2.1.20"
 junit = "4.13.2"
+junitJupiter = "5.10.0"
+junitPlatform = "1.10.0"
 ftc = "12.0.0"
 ftcutils = "v0.1.1"
+sloth = "0.3.2"
+pedropathing = "3.0.2"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
+junit-platform-suite = { group = "org.junit.platform", name = "junit-platform-suite", version.ref = "junitPlatform" }
+junit-vintage-engine = { group = "org.junit.vintage", name = "junit-vintage-engine", version.ref = "junitJupiter" }
 ftcutils-core = { group = "com.github.shlok-k720.FTCUtils", name = "core", version.ref = "ftcutils" }
 ftcutils-telemetry = { group = "com.github.shlok-k720.FTCUtils", name = "telemetry", version.ref = "ftcutils" }
 ftcutils-ftc = { group = "com.github.shlok-k720.FTCUtils", name = "ftc", version.ref = "ftcutils" }
 ftc-robotcore = { group = "org.firstinspires.ftc", name = "RobotCore", version.ref = "ftc" }
 ftc-hardware = { group = "org.firstinspires.ftc", name = "Hardware", version.ref = "ftc" }
 ftc-ftccommon = { group = "org.firstinspires.ftc", name = "FtcCommon", version.ref = "ftc" }
+sloth = { group = "dev.frozenmilk.sinister", name = "Sloth", version.ref = "sloth" }
+pedropathing-core = { group = "com.pedropathing", name = "core", version.ref = "pedropathing" }
 
 [bundles]
 ftc = ["ftc-ftccommon", "ftc-hardware", "ftc-robotcore"]
 
 [plugins]
-
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
