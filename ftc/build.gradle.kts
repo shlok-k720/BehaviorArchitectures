@@ -35,6 +35,12 @@ android {
 kotlin {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_1_8
+        // FTC SDK 12.0.0 and Sloth/Sinister are compiled with Kotlin 2.4
+        // (metadata 2.4.0); this project's compiler is 2.1.20, which reads
+        // metadata up to 2.2.0. Without this flag those classes are
+        // "incompatible" and the FIR checker crashes reporting them
+        // ("source must not be null" in FirIncompatibleClassTypeChecker).
+        freeCompilerArgs.add("-Xskip-metadata-version-check")
     }
 }
 
