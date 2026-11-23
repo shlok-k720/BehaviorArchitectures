@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-11-23
+
+### Fixed
+
+- Bumped the FTCUtils dependency from v0.1.1 to v0.1.2. FTCUtils v0.1.1's
+  DaemonFinder rejected daemon methods declared with primitive `void` return
+  (it compared against boxed `Void.class`), which broke Sloth scanning of
+  FTCUtils' own `ClockManager.daemon()` and this library's
+  `ArchitectureDaemon.daemon()`. v0.1.2 accepts both `void` and `Void`, so
+  those daemons register correctly again. No API changes in this library.
+
 ## [0.2.2] - 2026-11-23
 
 ### Fixed
