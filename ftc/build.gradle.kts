@@ -56,8 +56,10 @@ dependencies {
 
     // Provided by the host robot app at runtime. Compile against the same
     // version the consuming Quickstart uses; never use implementation here.
+    // Tests load real SDK classes (LinearOpMode, Telemetry) at runtime, so
+    // the SDK must be on the test runtime classpath too, not just compile.
     compileOnly(libs.bundles.ftc)
-    testCompileOnly(libs.bundles.ftc)
+    testImplementation(libs.bundles.ftc)
 
     // FTCUtils' published classes reference these in their signatures
     // (DaemonManager.DaemonFinder implements Sinister's Scanner; core's
