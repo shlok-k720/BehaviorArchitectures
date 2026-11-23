@@ -32,7 +32,7 @@ dependencies {
 }
 ```
 
-Replace `<version>` with a release tag, such as `v0.2.0`, after it has been built by JitPack. The `ftc` artifact already brings in `behaviorTrees`.
+Replace `<version>` with a release tag, such as `v0.2.1`, after it has been built by JitPack. The `ftc` artifact already brings in `behaviorTrees`.
 
 ## Building a Tree
 
@@ -213,7 +213,7 @@ The publishing setup follows the [FTC library publishing guide](https://shlok-k7
    ./gradlew clean :behaviorTrees:build :ftc:assembleRelease
    ```
 
-3. Commit the version change, create and push the matching tag, for example `v0.2.0`.
+3. Commit the version change, create and push the matching tag, for example `v0.2.1`.
 4. Open the repository on JitPack and wait for the tagged build to succeed before using the version in a consumer project.
 
 JitPack builds this repository with the OpenJDK 17 configuration in `jitpack.yml`. The published `behaviorTrees` artifact targets JVM 8, and the `ftc` artifact is an Android library that marks FTC SDK dependencies as `compileOnly` so consuming robot projects provide their own SDK runtime.

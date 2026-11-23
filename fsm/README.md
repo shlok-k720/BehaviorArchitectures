@@ -12,7 +12,7 @@ dependencies {
 }
 ```
 
-Replace `<version>` with a release tag, such as `v0.2.0`, after it has been
+Replace `<version>` with a release tag, such as `v0.2.1`, after it has been
 built by JitPack.
 
 ## States

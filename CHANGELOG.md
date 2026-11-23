@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-22
+
 ### Changed
 
 - The `util` module is gone, replaced by [FTCUtils](https://github.com/shlok-k720/FTCUtils)
@@ -16,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   The log caption constants moved out of `Logger` into a per-module `Captions`
   class (`com.rmsftc.bttree.Captions`, `com.rmsftc.fsm.Captions`,
   `com.rmsftc.cmdlib.Captions`) with the same names and values.
+- `cmdlib`: trigger debouncing and scheduler timing now use FTCUtils `Clock`
+  instead of `Supplier<Long>`.
+- Version management is centralized in `gradle/libs.versions.toml` for all
+  dependencies and plugins.
 
 ### Added
 
@@ -23,6 +29,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `ArchitectureManager` once and FTCUtils' daemon loop ticks it (alongside e.g.
   `ClockManager`); unregistered, it is a no-op and OpModes keep ticking manually
   as before.
+
+### Fixed
+
+- `ftc`: FIR/compiler instability from Kotlin metadata mismatch is avoided by
+  relaxing metadata version checks for SDK-side dependencies.
+- `ftc` tests: unit tests now compile and run against the required SDK runtime
+  classes (including telemetry) without `NoClassDefFoundError`.
 
 ## [0.2.0] - 2026-11-07
 
