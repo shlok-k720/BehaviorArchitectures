@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-11-23
+
+### Fixed
+
+- JitPack builds failed before starting: `gradle/gradle-daemon-jvm.properties`
+  pinned the Gradle daemon to Java 21, which JitPack's build images do not
+  provide. The file is removed; the daemon now runs on the JDK that launches
+  Gradle (17 on JitPack, your local JDK on your machine). No API or behavior
+  changes from 0.2.1.
+
 ## [0.2.1] - 2026-11-22
 
 ### Changed
