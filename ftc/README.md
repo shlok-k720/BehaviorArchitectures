@@ -53,9 +53,9 @@ manager.schedule(Commands.runOnce({ shooter.fire() }, "shooter"))
 ## Builders
 
 The tree and state-machine builders live here, grouped under
-`com.rmsftc.ftcImpl.Trees` and `com.rmsftc.ftcImpl.StateMachines` (plus the
-top-level `com.rmsftc.ftcImpl.stateMachine` function for the Kotlin DSL),
-and the command builder `com.rmsftc.ftcImpl.CommandsBuilder`:
+`com.rmsftc.ftc.Trees` and `com.rmsftc.ftc.StateMachines` (plus the
+top-level `com.rmsftc.ftc.stateMachine` function for the Kotlin DSL),
+and the command builder `com.rmsftc.ftc.CommandsBuilder`:
 
 ```kotlin
 // Kotlin
@@ -129,7 +129,7 @@ SUCCESS, a FAILED tree-as-command still counts as finished).
 
 ```bash
 ./gradlew :ftc:testDebugUnitTest
-./gradlew :ftc:testDebugUnitTest --tests com.rmsftc.ftcImpl.UnitTestAll
+./gradlew :ftc:testDebugUnitTest --tests com.rmsftc.ftc.UnitTestAll
 ```
 
 The JUnit 5 tests (moved builder tests, converter and manager tests) run

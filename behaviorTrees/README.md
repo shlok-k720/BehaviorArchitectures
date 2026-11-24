@@ -6,7 +6,7 @@ A Java and Kotlin behavior-tree library for FTC robots. The library separates re
 
 | Artifact | Purpose |
 | --- | --- |
-| `behaviorTrees` | Platform-independent behavior-tree nodes. This is the dependency most robot projects need. Shared state and logging live in `util`. The builders live in `ftc` (`com.rmsftc.ftcImpl.Trees`). |
+| `behaviorTrees` | Platform-independent behavior-tree nodes. This is the dependency most robot projects need. Shared state and logging live in FTCUtils (`com.rmsftc.utils.*`). The builders live in `ftc` (`com.rmsftc.ftc.Trees`). |
 | `ftc` | Android/FTC-facing module that depends on `behaviorTrees` and compiles against the FTC SDK. |
 
 ## Install from JitPack
@@ -46,14 +46,14 @@ Every `BehaviorNode` returns one of three statuses:
 
 Call `tree.tick()` once per OpMode loop. A node runs its start callback once for an activation, its tick callback on every loop while active, and its end callback when it finishes or is invalidated.
 
-The builders live in the `ftc` module, under `com.rmsftc.ftcImpl.Trees` — this artifact holds the nodes only. Or build through `ArchitectureManager.tree(...)`, which manages the tree and shares one blackboard with your machines and commands.
+The builders live in the `ftc` module, under `com.rmsftc.ftc.Trees` — this artifact holds the nodes only. Or build through `ArchitectureManager.tree(...)`, which manages the tree and shares one blackboard with your machines and commands.
 
 ### Kotlin DSL
 
 ```kotlin
 import com.rmsftc.bttree.NodeStatus
-import com.rmsftc.util.blackboard.Blackboard
-import com.rmsftc.ftcImpl.Trees
+import com.rmsftc.utils.blackboard.Blackboard
+import com.rmsftc.ftc.Trees
 
 val blackboard = Blackboard()
 
@@ -148,8 +148,8 @@ Call `reset()` before reusing a tree when its state should return to never-ticke
 
 ## Blackboard, Callbacks, and Logging
 
-`Blackboard` and `Logger` live in the `util` module
-(`com.rmsftc.util.blackboard`, `com.rmsftc.util.logger`) and are shared
+`Blackboard` and `Logger` live in FTCUtils
+(`com.rmsftc.utils.blackboard`, `com.rmsftc.utils.logger`) and are shared
 with `fsm` and `cmdlib`. `Blackboard` is typed shared state for tree
 nodes. It accepts both string and enum keys:
 

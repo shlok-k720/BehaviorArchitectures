@@ -113,17 +113,17 @@ boolean full = blackboard().getIfPresent("full", Boolean.class) == Boolean.TRUE;
 
 The builders take it too: `StateMachines.JavaBuilder.stateMachine(b -> b.blackboard(board))`
 and `blackboard(board)` in the Kotlin DSL. (The builders live in the `ftc`
-module, under `com.rmsftc.ftcImpl.StateMachines`.)
+module, under `com.rmsftc.ftc.StateMachines`.)
 
 The machine logs every switch through `Logger` (also from `util`):
 `FSM_STATE_ENTERED` / `FSM_STATE_EXITED` on each switch (with
 `state=` and `to=` in the data), and `FSM_FINISHED` when it runs out of
-cases. Logging is a no-op until a `LogSystem` is attached — see `util`.
+cases. Logging is a no-op until a `LogSystem` is attached — see FTCUtils.
 
 ## Builders
 
-The builders live in the `ftc` module, under `com.rmsftc.ftcImpl.StateMachines`
-(and the top-level `com.rmsftc.ftcImpl.stateMachine` function for the Kotlin
+The builders live in the `ftc` module, under `com.rmsftc.ftc.StateMachines`
+(and the top-level `com.rmsftc.ftc.stateMachine` function for the Kotlin
 DSL). Or build through `ArchitectureManager.stateMachine(...)`, which manages
 the machine and shares one blackboard with your trees and commands.
 
@@ -147,7 +147,7 @@ case's DSL as receiver, so transitions are called from inside them).
 Every DSL method also has a `Consumer` overload, and
 `StateMachines.KotlinBuilder.stateMachine(Consumer)` is the Java entry point, so the
 Kotlin builder is usable from Java too — see
-`ftc/src/test/java/com/rmsftc/ftcImpl/fsm/examples/`:
+`ftc/src/test/java/com/rmsftc/ftc/fsm/examples/`:
 
 ```kotlin
 val machine = stateMachine {

@@ -21,7 +21,10 @@ import com.rmsftc.utils.ftc.daemons.FTCDaemon;
  * stops the daemon from ticking anything (it becomes a no-op).
  */
 public final class ArchitectureDaemon {
-    private static ArchitectureManager manager;
+    // volatile: register()/unregister() may run on the OpMode thread
+    // while daemon() runs on the daemon loop, so the write must be
+    // visible to the reader without synchronization.
+    private static volatile ArchitectureManager manager;
 
     private ArchitectureDaemon() {}
 

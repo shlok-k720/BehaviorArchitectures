@@ -44,7 +44,18 @@ interface IScheduler {
     }
 
     companion object {
-        /** The default scheduler, shared by OpMode code. */
+        /**
+         * The default scheduler, shared by OpMode code.
+         *
+         * WARNING: nothing in this library ticks the default scheduler.
+         * [Trigger], `ProxyCommand`, `ScheduleCommand`, and
+         * [ICommand.schedule] / [ICommand.cancel] / [ICommand.isScheduled]
+         * all route to [instance], so a command scheduled that way will
+         * never execute unless the OpMode itself calls
+         * `IScheduler.instance.execute()` once per loop. Prefer an
+         * `ArchitectureManager`'s scheduler (ticked by the manager) or
+         * an explicit `Scheduler` you execute yourself.
+         */
         @JvmStatic
         val instance: IScheduler = Scheduler()
     }

@@ -3,7 +3,7 @@ FTC Library for Behavior Architectures (FSM, Command based system, and behavior 
 
 Modules:
 
-- `util` — shared support: `Blackboard` (typed shared state) and `Logger` (log fan-out).
+- Shared state and logging (`Blackboard`, `Logger`) live in FTCUtils (`com.rmsftc.utils.*`) — the old `util` module was removed in 0.2.1.
 - `behaviorTrees` — behavior-tree nodes.
 - `cmdlib` — command-based framework (Ivy-style, WPILib v2 lifecycle).
 - `fsm` — switch/case state machines, tick-driven via `update()`.

@@ -6,6 +6,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-11-24
+
+### Fixed
+
+- `TimeoutNode` now takes a nanosecond `Clock` (default `Clock.SYSTEM`)
+  instead of calling `System.nanoTime()` directly, so tests can drive it
+  with a fake clock instead of sleeping. Source-compatible: the clock is
+  a defaulted last constructor parameter.
+- READMEs referenced the deleted `util` module and the nonexistent
+  `com.rmsftc.ftcImpl` package; all references now point at FTCUtils
+  (`com.rmsftc.utils.*`) and `com.rmsftc.ftc.*`.
+
+### Added
+
+- `IScheduler.instance` KDoc now warns that nothing in this library
+  ticks the default scheduler, so commands scheduled through it (via
+  `Trigger`, `ProxyCommand`, `ScheduleCommand`, or `ICommand.schedule`)
+  never execute unless the OpMode ticks it itself.
+- `ArchitectureManager.resetAndInitialize()` KDoc now notes that triggers
+  and scheduler event listeners are dropped along with the old scheduler.
+- `ArchitectureDaemon.manager` is now `volatile`: registration may run on
+  the OpMode thread while the daemon reads it on the daemon loop.
+
 ## [0.2.3] - 2026-11-23
 
 ### Fixed

@@ -99,6 +99,10 @@ class ArchitectureManager @JvmOverloads constructor(
      * starts fresh with a new blackboard and scheduler. Trees, machines,
      * and commands created before this call reference the previous
      * blackboard and should not be ticked afterward.
+     *
+     * Note: triggers and scheduler event listeners registered on the old
+     * scheduler are dropped along with it — re-register them after this
+     * call if they are still needed.
      */
     fun resetAndInitialize() {
         invalidateAll()
